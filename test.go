@@ -1,12 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"digi-bot/config"
+	"digi-bot/model"
+)
 
 func main() {
-	x := []string{"a", "b", "c"}
-	var y []string
-	for _, value := range x {
-		y = append(y, value)
-	}
-	fmt.Print(y)
+	db := config.Init()
+	test := model.TestModel{Username: "mohammad", FirstName: "jamshidi", LastName: "amoo mama"}
+	db.Create(&test)
+
+	//defer db.
 }

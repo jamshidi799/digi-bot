@@ -1,9 +1,12 @@
 package main
 
 import (
-	"digi-bot/crawler"
+	"digi-bot/bot"
+	"digi-bot/config"
 )
 
 func main() {
-	crawler.Crawl()
+	config.Init()
+	bot.Run()
+	//crawler.Crawl()
 }
