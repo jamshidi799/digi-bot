@@ -1,10 +1,10 @@
 package entity
 
 type Object struct {
-	Name          string
-	AlternateName string
-	Description   string
-	Price         int
-	OldPrice      int
-	Images        []string
+	Name          string   `json:"name"`
+	AlternateName string   `json:"alternateName"`
+	Description   string   `json:"description"`
+	Price         int      `json:"offers.lowPrice"`
+	OldPrice      int      `json:"offers.highPrice"`
+	Images        []string `json:"image"`
 }

@@ -13,33 +13,10 @@ func Crawl() {
 	)
 
 	c.OnHTML("script[type=\"application/ld+json\"]", func(e *colly.HTMLElement) {
-		var result map[string]interface{}
-		err := json.Unmarshal([]byte(e.Text), &result)
+		var obj entity.Object
+		err := json.Unmarshal([]byte(e.Text), &obj)
 		if err != nil {
 			println("err")
-		}
-		obj := entity.Object{}
-		if val, ok := result["name"].(string); ok {
-			obj.Name = val
-		}
-		if val, ok := result["alternateName"].(string); ok {
-			obj.AlternateName = val
-		}
-		if val, ok := result["description"].(string); ok {
-			obj.Description = val
-		}
-		if val, ok := result["offers"].(map[string]interface{}); ok {
-			obj.Price = int(val["lowPrice"].(float64))
-		}
-		if val, ok := result["offers"].(map[string]interface{}); ok {
-			obj.OldPrice = int(val["highPrice"].(float64))
-		}
-
-		obj.Images = []string{}
-		if val, ok := result["image"].([]interface{}); ok {
-			for _, value := range val {
-				obj.Images = append(obj.Images, value.(string))
-			}
 		}
 
 		if obj.Name != "" {
