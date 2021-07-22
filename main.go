@@ -8,5 +8,4 @@ import (
 func main() {
 	config.Init()
 	bot.Run()
-	//crawler.Crawl()
 }

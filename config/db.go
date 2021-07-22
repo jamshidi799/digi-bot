@@ -23,4 +23,5 @@ func Init() *gorm.DB {
 func migration() {
 	_ = DB.AutoMigrate(&model.TestModel{})
 	_ = DB.AutoMigrate(&model.UserModel{})
+	_ = DB.AutoMigrate(&model.ObjectModel{})
 }
