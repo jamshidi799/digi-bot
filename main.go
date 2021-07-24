@@ -4,9 +4,8 @@ import (
 	"digi-bot/bot"
 	"digi-bot/crawler"
 	"digi-bot/db"
+	"digi-bot/messageCreator"
 	"digi-bot/model"
-	str "digi-bot/stringUtility"
-	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -57,30 +56,8 @@ func changeDetector(newObj model.Object, oldObj model.Object) (message string, i
 		if oldObj.Price == 0 {
 			return "", false
 		}
-		return createNotAvailableMsg(newObj), true
+		return messageCreator.CreateNotAvailableMsg(newObj), true
 	}
 
-	return createNormalPriceChangeMsg(newObj, newObj.Price, oldObj.Price), true
-}
-
-func createNormalPriceChangeMsg(object model.Object, newPrice int, oldPrice int) string {
-	output := createHeader(object).Append(fmt.Sprintf("%s -> %s", str.Number(oldPrice).AddComma(), str.Number(newPrice).AddComma()))
-	return output.ToString()
-}
-
-func createNotAvailableMsg(obj model.Object) string {
-	output := createHeader(obj).
-		Append("ناموجود!")
-
-	return output.ToString()
-}
-
-func createHeader(obj model.Object) str.String {
-	output := str.
-		String(obj.Name).
-		Bold().
-		ToLink(obj.Url).
-		AddNewLine()
-
-	return output
+	return messageCreator.CreateNormalPriceChangeMsg(newObj, newObj.Price, oldObj.Price), true
 }

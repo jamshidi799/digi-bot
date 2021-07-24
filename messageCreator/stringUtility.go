@@ -1,9 +1,7 @@
-package str
+package messageCreator
 
 import (
 	"fmt"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
 )
 
 type String string
@@ -36,11 +34,4 @@ func (str String) Append(str2 string) String {
 
 func (str String) ToString() string {
 	return string(str)
-}
-
-type Number int
-
-func (num Number) AddComma() String {
-	p := message.NewPrinter(language.English)
-	return String(p.Sprintf("%d", num))
 }

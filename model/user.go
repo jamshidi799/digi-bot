@@ -45,10 +45,3 @@ func ToUserModel(user *tb.User) UserModel {
 		SupportsInline:  user.SupportsInline,
 	}
 }
-
-type TestModel struct {
-	gorm.Model
-	Username  string `gorm:"unique_index"`
-	FirstName string `gorm:"size:1024"`
-	LastName  string
-}
