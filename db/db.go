@@ -24,15 +24,3 @@ func migration() {
 	_ = DB.AutoMigrate(&model.UserModel{})
 	_ = DB.AutoMigrate(&model.ProductModel{})
 }
-
-func GetAllProduct() []model.ProductModel {
-	var objects []model.ProductModel
-	DB.Find(&objects)
-	return objects
-}
-
-func GetUserById(userId int) model.UserModel {
-	var user model.UserModel
-	DB.Where(model.UserModel{ID: userId}).First(&user)
-	return user
-}
