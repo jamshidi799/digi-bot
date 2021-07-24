@@ -6,6 +6,7 @@ import (
 	"digi-bot/db"
 	"digi-bot/messageCreator"
 	"digi-bot/model"
+	productService "digi-bot/service/product"
 	"log"
 	"sync"
 	"time"
@@ -44,9 +45,7 @@ func Scheduler() {
 				message)
 		}
 
-		//product.Price = newProduct.Price
-		//product.OldPrice = newProduct.OldPrice
-		//db.DB.Save(&product)
+		productService.UpdateProduct(product, newProduct)
 
 		break
 		time.Sleep(time.Second * 3)

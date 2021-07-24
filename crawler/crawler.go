@@ -21,8 +21,8 @@ func Crawl(url string) (model.Product, error) {
 		}
 
 		product.Url = url
-		product.Price = product.Offer.Price
-		product.OldPrice = product.Offer.OldPrice
+		product.Price = product.Offer.Price / 10
+		product.OldPrice = product.Offer.OldPrice / 10
 	})
 
 	err := c.Visit(url)

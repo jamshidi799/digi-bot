@@ -1,10 +1,10 @@
 package bot
 
 import (
-	"digi-bot/crawler"
 	"digi-bot/db"
 	"digi-bot/messageCreator"
 	"digi-bot/model"
+	productService "digi-bot/service/product"
 	"fmt"
 	"log"
 	"strings"
@@ -39,16 +39,29 @@ func Run(group *sync.WaitGroup) {
 		_, _ = bot.Send(m.Sender, "آدرس کالا را وارد کنید")
 	})
 
+	bot.Handle("/deleteAll", func(m *tb.Message) {
+		productService.DeleteAllUserProduct(m.Sender.ID)
+	})
+	bot.Handle("/help", func(m *tb.Message) {
+		// todo
+	})
+
 	bot.Handle(tb.OnText, func(m *tb.Message) {
-		product, err := addObjectToDB(m.Sender.ID, m.Text)
-		if err != nil {
-			_, _ = bot.Send(m.Sender, err.Error())
+		if m.IsReply() {
+			productName := strings.Split(m.ReplyTo.Text, "\n")[0]
+			productService.DeleteProductByName(productName)
 		} else {
-			message := messageCreator.CreatePreviewMsg(product)
-			log.Println(message)
-			_, _ = bot.Send(m.Sender, message, &tb.SendOptions{
-				ParseMode: "HTML",
-			})
+
+			product, err := productService.AddProductToDB(m.Sender.ID, m.Text)
+			if err != nil {
+				_, _ = bot.Send(m.Sender, err.Error())
+			} else {
+				message := messageCreator.CreatePreviewMsg(product)
+				log.Println(message)
+				_, _ = bot.Send(m.Sender, message, &tb.SendOptions{
+					ParseMode: "HTML",
+				})
+			}
 		}
 	})
 
@@ -79,21 +92,4 @@ func Send(chatId int, message string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func addObjectToDB(senderId int, url string) (model.Product, error) {
-	fmt.Printf("%+v %+v", senderId, url)
-	if res := strings.Contains(url, "digikala.com"); !res {
-		return model.Product{}, nil
-	}
-
-	product, err := crawler.Crawl(url)
-	if err != nil {
-		return model.Product{}, nil
-	}
-
-	fmt.Printf("%+v", product)
-	productModel := product.ToProductModel(senderId)
-	db.DB.Create(&productModel)
-	return productModel.ToProduct(), nil
 }
