@@ -45,10 +45,10 @@ type offer struct {
 	OldPrice int `json:"highPrice"`
 }
 
-func (obj Object) ToObjectModel(userId int, url string) ObjectModel {
+func (obj Object) ToObjectModel(userId int) ObjectModel {
 	return ObjectModel{
 		UserId:        userId,
-		Url:           url,
+		Url:           obj.Url,
 		Name:          obj.Name,
 		AlternateName: obj.AlternateName,
 		Description:   obj.Description,

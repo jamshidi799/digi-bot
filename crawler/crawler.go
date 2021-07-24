@@ -7,6 +7,7 @@ import (
 	"github.com/gocolly/colly"
 )
 
+// todo: create interface
 func Crawl(url string) (model.Object, error) {
 	c := colly.NewCollector(
 		colly.AllowedDomains("digikala.com", "www.digikala.com"),

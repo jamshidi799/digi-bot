@@ -16,6 +16,7 @@ import (
 
 var Bot *tb.Bot
 
+// todo: create interface and add other clients
 func Run(group *sync.WaitGroup) {
 	var token = "1700540701:AAGiNrhQNdha0FJVm9icPiv4VghZw7o1eE8"
 	bot, err := tb.NewBot(tb.Settings{
@@ -34,8 +35,6 @@ func Run(group *sync.WaitGroup) {
 	bot.Handle("/start", func(m *tb.Message) {
 		userModel := model.ToUserModel(m.Sender)
 		db.DB.Create(&userModel)
-		fmt.Printf("%+v\n", userModel)
-		fmt.Printf("%+v\n", m.Sender)
 
 		_, _ = bot.Send(m.Sender, "آدرس کالا را وارد کنید")
 	})
@@ -50,6 +49,8 @@ func Run(group *sync.WaitGroup) {
 		}
 	})
 
+	// todo: handle /delete and /help command
+
 	bot.Start()
 
 }
@@ -62,7 +63,7 @@ func SendUpdateForUser(chatId int, imageUrl string, message string) {
 	//	ParseMode: "HTML",
 	//})
 
-	Bot.Send(user.ToTbUser(), message, &tb.SendOptions{
+	_, _ = Bot.Send(user.ToTbUser(), message, &tb.SendOptions{
 		ParseMode: "HTML",
 	})
 }
@@ -89,7 +90,7 @@ func addObjectToDB(senderId int, url string) (model.Object, error) {
 	}
 
 	fmt.Printf("%+v", obj)
-	objModel := obj.ToObjectModel(senderId, url)
+	objModel := obj.ToObjectModel(senderId)
 	db.DB.Create(&objModel)
 	return objModel.ToObject(), nil
 }

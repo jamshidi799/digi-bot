@@ -41,7 +41,11 @@ func Scheduler() {
 				object.Image,
 				message)
 		}
-		// todo: write new obj to db
+
+		object.Price = obj.Price
+		object.OldPrice = obj.OldPrice
+		db.DB.Save(&object)
+
 		break
 		time.Sleep(time.Second * 3)
 	}
