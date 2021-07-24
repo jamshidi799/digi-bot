@@ -1,4 +1,4 @@
-package config
+package db
 
 import (
 	"digi-bot/model"
@@ -24,4 +24,16 @@ func migration() {
 	_ = DB.AutoMigrate(&model.TestModel{})
 	_ = DB.AutoMigrate(&model.UserModel{})
 	_ = DB.AutoMigrate(&model.ObjectModel{})
+}
+
+func GetAllProduct() []model.ObjectModel {
+	var objects []model.ObjectModel
+	DB.Find(&objects)
+	return objects
+}
+
+func GetUserById(userId int) model.UserModel {
+	var user model.UserModel
+	DB.Where(model.UserModel{ID: userId}).First(&user)
+	return user
 }

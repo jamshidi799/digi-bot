@@ -1,8 +1,8 @@
 package bot
 
 import (
-	"digi-bot/config"
 	"digi-bot/crawler"
+	"digi-bot/db"
 	"digi-bot/model"
 	"errors"
 	"fmt"
@@ -33,7 +33,7 @@ func Run(group *sync.WaitGroup) {
 
 	bot.Handle("/start", func(m *tb.Message) {
 		userModel := model.ToUserModel(m.Sender)
-		config.DB.Create(&userModel)
+		db.DB.Create(&userModel)
 		fmt.Printf("%+v\n", userModel)
 		fmt.Printf("%+v\n", m.Sender)
 
@@ -55,8 +55,7 @@ func Run(group *sync.WaitGroup) {
 }
 
 func SendUpdateForUser(chatId int, imageUrl string, message string) {
-	var user model.UserModel
-	config.DB.Where(model.UserModel{ID: chatId}).First(&user) // todo: add this query to model package
+	user := db.GetUserById(chatId)
 	//photo := &tb.Photo{File: tb.FromURL(imageUrl)}
 	//imageMsg, _ := Bot.Send(user.ToTbUser(), photo)
 	//Bot.Reply(imageMsg, message, &tb.SendOptions{
@@ -69,8 +68,7 @@ func SendUpdateForUser(chatId int, imageUrl string, message string) {
 }
 
 func Send(chatId int, message string) {
-	var user model.UserModel
-	config.DB.First(&user) // todo: use chat id
+	user := db.GetUserById(chatId)
 	fmt.Printf("%+v\n", user)
 	fmt.Printf("%+v\n", user.ToTbUser())
 	_, err := Bot.Send(user.ToTbUser(), message)
@@ -92,6 +90,6 @@ func addObjectToDB(senderId int, url string) error {
 
 	fmt.Printf("%+v", obj)
 	objModel := obj.ToObjectModel(senderId, url)
-	config.DB.Create(&objModel)
+	db.DB.Create(&objModel)
 	return nil
 }

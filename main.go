@@ -2,8 +2,8 @@ package main
 
 import (
 	"digi-bot/bot"
-	"digi-bot/config"
 	"digi-bot/crawler"
+	"digi-bot/db"
 	"digi-bot/model"
 	str "digi-bot/stringUtility"
 	"fmt"
@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	config.Init()
+	db.Init()
 	var group sync.WaitGroup
 	group.Add(1)
 	go bot.Run(&group)
@@ -23,8 +23,7 @@ func main() {
 }
 
 func Scheduler() {
-	var objects []model.ObjectModel
-	config.DB.Find(&objects)
+	objects := db.GetAllProduct()
 
 	//fmt.Printf("%+v", objects)
 
