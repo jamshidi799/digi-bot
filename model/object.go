@@ -17,13 +17,32 @@ type ObjectModel struct {
 	Image         string
 }
 
+func (objModel ObjectModel) ToObject() Object {
+	return Object{
+		Name:          objModel.Name,
+		AlternateName: objModel.AlternateName,
+		Url:           objModel.Url,
+		Description:   objModel.Description,
+		Price:         objModel.Price,
+		OldPrice:      objModel.OldPrice,
+		Images:        []string{objModel.Image},
+	}
+}
+
 type Object struct {
-	Name          string   `json:"name"`
-	AlternateName string   `json:"alternateName"`
-	Description   string   `json:"description"`
-	Price         int      `json:"offers.lowPrice"`
-	OldPrice      int      `json:"offers.highPrice"`
+	Name          string `json:"name"`
+	AlternateName string `json:"alternateName"`
+	Description   string `json:"description"`
+	Url           string
+	Offer         offer `json:"offers"`
+	Price         int
+	OldPrice      int
 	Images        []string `json:"image"`
+}
+
+type offer struct {
+	Price    int `json:"lowPrice"`
+	OldPrice int `json:"highPrice"`
 }
 
 func (obj Object) ToObjectModel(userId int, url string) ObjectModel {
