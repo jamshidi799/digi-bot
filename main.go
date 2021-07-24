@@ -18,50 +18,52 @@ func main() {
 	go bot.Run(&group)
 	group.Wait()
 	log.Println("bot started")
+	group.Add(1)
 	Scheduler()
+	group.Wait()
 }
 
 func Scheduler() {
-	objects := db.GetAllProduct()
+	products := db.GetAllProduct()
 
-	//fmt.Printf("%+v", objects)
+	//fmt.Printf("%+v", products)
 
-	for _, object := range objects {
-		obj, err := crawler.Crawl(object.Url)
+	for _, product := range products {
+		newProduct, err := crawler.Crawl(product.Url)
 		if err != nil {
-			log.Println(obj)
+			log.Println(newProduct)
 		}
 
 		log.Printf("old price: %d, new price: %d",
-			object.Price,
-			obj.Price)
+			product.Price,
+			newProduct.Price)
 
-		if message, isChanged := changeDetector(obj, object.ToObject()); isChanged {
-			bot.SendUpdateForUser(object.UserId,
-				object.Image,
+		if message, isChanged := changeDetector(newProduct, product.ToProduct()); isChanged {
+			bot.SendUpdateForUser(product.UserId,
+				product.Image,
 				message)
 		}
 
-		object.Price = obj.Price
-		object.OldPrice = obj.OldPrice
-		db.DB.Save(&object)
+		//product.Price = newProduct.Price
+		//product.OldPrice = newProduct.OldPrice
+		//db.DB.Save(&product)
 
 		break
 		time.Sleep(time.Second * 3)
 	}
 }
 
-func changeDetector(newObj model.Object, oldObj model.Object) (message string, isChanged bool) {
-	if newObj.Price == oldObj.Price {
+func changeDetector(newProduct model.Product, oldProduct model.Product) (message string, isChanged bool) {
+	if newProduct.Price == oldProduct.Price {
 		return "", false
 	}
 
-	if newObj.Price == 0 {
-		if oldObj.Price == 0 {
+	if newProduct.Price == 0 {
+		if oldProduct.Price == 0 {
 			return "", false
 		}
-		return messageCreator.CreateNotAvailableMsg(newObj), true
+		return messageCreator.CreateNotAvailableMsg(newProduct), true
 	}
 
-	return messageCreator.CreateNormalPriceChangeMsg(newObj, newObj.Price, oldObj.Price), true
+	return messageCreator.CreateNormalPriceChangeMsg(newProduct, newProduct.Price, oldProduct.Price), true
 }

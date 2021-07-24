@@ -22,11 +22,11 @@ func Init() *gorm.DB {
 
 func migration() {
 	_ = DB.AutoMigrate(&model.UserModel{})
-	_ = DB.AutoMigrate(&model.ObjectModel{})
+	_ = DB.AutoMigrate(&model.ProductModel{})
 }
 
-func GetAllProduct() []model.ObjectModel {
-	var objects []model.ObjectModel
+func GetAllProduct() []model.ProductModel {
+	var objects []model.ProductModel
 	DB.Find(&objects)
 	return objects
 }

@@ -5,30 +5,32 @@ import (
 	"fmt"
 )
 
-func CreateNormalPriceChangeMsg(object model.Object, newPrice int, oldPrice int) string {
-	output := createHeader(object).
+func CreateNormalPriceChangeMsg(product model.Product, newPrice int, oldPrice int) string {
+	output := createHeader(product).
 		Append(fmt.Sprintf("%s -> %s", Number(oldPrice).AddComma(), Number(newPrice).AddComma()))
 	return output.ToString()
 }
 
-func CreatePreviewMsg(object model.Object) string {
-	output := createHeader(object)
-	if object.Price != object.OldPrice {
-		output.
+func CreatePreviewMsg(product model.Product) string {
+	output := String(product.Name).
+		Bold().
+		AddNewLine()
+	if product.Price != product.OldPrice {
+		output = output.
 			Append("قیمت: ").
 			Append(fmt.Sprintf("%s -> %s",
-				Number(object.OldPrice).
+				Number(product.OldPrice).
 					AddComma().
 					Strike(),
-				Number(object.Price).
+				Number(product.Price).
 					AddComma()))
 	} else {
-		output.
+		output = output.
 			Append("قیمت: ").
-			Append(Number(object.Price).AddComma().ToString())
+			Append(Number(product.Price).AddComma().ToString())
 	}
 
-	output.
+	output = output.
 		AddNewLine().
 		AddNewLine().
 		Append("کالا با موفقیت ذخیره شد. برای اضافه کردن کالای جدید کافی است فقط آدرس آن را وارد کنید")
@@ -36,17 +38,17 @@ func CreatePreviewMsg(object model.Object) string {
 	return output.ToString()
 }
 
-func CreateNotAvailableMsg(obj model.Object) string {
-	output := createHeader(obj).
+func CreateNotAvailableMsg(product model.Product) string {
+	output := createHeader(product).
 		Append("ناموجود!")
 
 	return output.ToString()
 }
 
-func createHeader(obj model.Object) String {
-	output := String(obj.Name).
+func createHeader(product model.Product) String {
+	output := String(product.Name).
 		Bold().
-		ToLink(obj.Url).
+		ToLink(product.Url).
 		AddNewLine()
 
 	return output

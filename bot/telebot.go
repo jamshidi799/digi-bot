@@ -40,12 +40,15 @@ func Run(group *sync.WaitGroup) {
 	})
 
 	bot.Handle(tb.OnText, func(m *tb.Message) {
-		obj, err := addObjectToDB(m.Sender.ID, m.Text)
+		product, err := addObjectToDB(m.Sender.ID, m.Text)
 		if err != nil {
 			_, _ = bot.Send(m.Sender, err.Error())
 		} else {
-			message := messageCreator.CreatePreviewMsg(obj)
-			_, _ = bot.Send(m.Sender, message)
+			message := messageCreator.CreatePreviewMsg(product)
+			log.Println(message)
+			_, _ = bot.Send(m.Sender, message, &tb.SendOptions{
+				ParseMode: "HTML",
+			})
 		}
 	})
 
@@ -78,19 +81,19 @@ func Send(chatId int, message string) {
 	}
 }
 
-func addObjectToDB(senderId int, url string) (model.Object, error) {
+func addObjectToDB(senderId int, url string) (model.Product, error) {
 	fmt.Printf("%+v %+v", senderId, url)
 	if res := strings.Contains(url, "digikala.com"); !res {
-		return model.Object{}, nil
+		return model.Product{}, nil
 	}
 
-	obj, err := crawler.Crawl(url)
+	product, err := crawler.Crawl(url)
 	if err != nil {
-		return model.Object{}, nil
+		return model.Product{}, nil
 	}
 
-	fmt.Printf("%+v", obj)
-	objModel := obj.ToObjectModel(senderId)
-	db.DB.Create(&objModel)
-	return objModel.ToObject(), nil
+	fmt.Printf("%+v", product)
+	productModel := product.ToProductModel(senderId)
+	db.DB.Create(&productModel)
+	return productModel.ToProduct(), nil
 }
