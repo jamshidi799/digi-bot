@@ -18,6 +18,10 @@ func Crawl(url string) (model.Object, error) {
 		if err != nil {
 			println("err")
 		}
+
+		obj.Url = url
+		obj.Price = obj.Offer.Price
+		obj.OldPrice = obj.Offer.OldPrice
 	})
 
 	err := c.Visit(url)
