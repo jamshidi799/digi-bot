@@ -30,7 +30,9 @@ func UpdateProduct(product model.ProductModel, newProduct model.Product) {
 	product.OldPrice = newProduct.OldPrice
 	db.DB.Save(&product)
 }
-func DeleteAllUserProduct(userId int) {}
+func DeleteAllUserProduct(userId int) {
+	db.DB.Where("user_id = ?", userId).Delete(&model.ProductModel{})
+}
 
 func DeleteProductByName(name string) model.Product {
 	var product model.ProductModel

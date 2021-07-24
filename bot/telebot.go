@@ -41,6 +41,7 @@ func Run(group *sync.WaitGroup) {
 
 	bot.Handle("/deleteAll", func(m *tb.Message) {
 		productService.DeleteAllUserProduct(m.Sender.ID)
+		bot.Reply(m, "لیست کالا با موفقیت پاک شد")
 	})
 	bot.Handle("/help", func(m *tb.Message) {
 		// todo
@@ -49,7 +50,6 @@ func Run(group *sync.WaitGroup) {
 	bot.Handle(tb.OnText, func(m *tb.Message) {
 		if m.IsReply() {
 			productName := strings.Split(m.ReplyTo.Text, "\n")[0]
-			fmt.Println(productName)
 			product := productService.DeleteProductByName(productName)
 			msg := messageCreator.CreateDeleteProductSuccessfulMsg(product)
 			bot.Reply(m, msg, &tb.SendOptions{
