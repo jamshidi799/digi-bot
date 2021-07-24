@@ -45,6 +45,11 @@ func CreateNotAvailableMsg(product model.Product) string {
 	return output.ToString()
 }
 
+func CreateDeleteProductSuccessfulMsg(product model.Product) string {
+	output := createHeader(product).Append("با موفقیت از لیست پاک شد")
+	return output.ToString()
+}
+
 func createHeader(product model.Product) String {
 	output := String(product.Name).
 		Bold().

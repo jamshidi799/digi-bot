@@ -31,4 +31,10 @@ func UpdateProduct(product model.ProductModel, newProduct model.Product) {
 	db.DB.Save(&product)
 }
 func DeleteAllUserProduct(userId int) {}
-func DeleteProductByName(name string) {}
+
+func DeleteProductByName(name string) model.Product {
+	var product model.ProductModel
+	name = strings.TrimSpace(name)
+	db.DB.Where("name = ?", name).First(&product).Delete(&model.ProductModel{})
+	return product.ToProduct()
+}

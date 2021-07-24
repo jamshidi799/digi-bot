@@ -49,7 +49,12 @@ func Run(group *sync.WaitGroup) {
 	bot.Handle(tb.OnText, func(m *tb.Message) {
 		if m.IsReply() {
 			productName := strings.Split(m.ReplyTo.Text, "\n")[0]
-			productService.DeleteProductByName(productName)
+			fmt.Println(productName)
+			product := productService.DeleteProductByName(productName)
+			msg := messageCreator.CreateDeleteProductSuccessfulMsg(product)
+			bot.Reply(m, msg, &tb.SendOptions{
+				ParseMode: "HTML",
+			})
 		} else {
 
 			product, err := productService.AddProductToDB(m.Sender.ID, m.Text)

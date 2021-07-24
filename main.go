@@ -47,7 +47,7 @@ func Scheduler() {
 
 		productService.UpdateProduct(product, newProduct)
 
-		break
+		//break
 		time.Sleep(time.Second * 3)
 	}
 }
