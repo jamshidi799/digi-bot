@@ -3,8 +3,8 @@ package bot
 import (
 	"digi-bot/crawler"
 	"digi-bot/db"
+	"digi-bot/messageCreator"
 	"digi-bot/model"
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -41,12 +41,12 @@ func Run(group *sync.WaitGroup) {
 	})
 
 	bot.Handle(tb.OnText, func(m *tb.Message) {
-		err := addObjectToDB(m.Sender.ID, m.Text)
+		obj, err := addObjectToDB(m.Sender.ID, m.Text)
 		if err != nil {
 			_, _ = bot.Send(m.Sender, err.Error())
 		} else {
-			// todo: send object and its current status
-			_, _ = bot.Send(m.Sender, "کالا با موفقیت ذخیره شد. برای اضافه کردن کالای جدید کافی است فقط آدرس آن را وارد کنید")
+			message := messageCreator.CreatePreviewMsg(obj)
+			_, _ = bot.Send(m.Sender, message)
 		}
 	})
 
@@ -77,19 +77,19 @@ func Send(chatId int, message string) {
 	}
 }
 
-func addObjectToDB(senderId int, url string) error {
+func addObjectToDB(senderId int, url string) (model.Object, error) {
 	fmt.Printf("%+v %+v", senderId, url)
 	if res := strings.Contains(url, "digikala.com"); !res {
-		return errors.New("آدرس وارد شده نامعتبر می‌باشد")
+		return model.Object{}, nil
 	}
 
 	obj, err := crawler.Crawl(url)
 	if err != nil {
-		return err
+		return model.Object{}, nil
 	}
 
 	fmt.Printf("%+v", obj)
 	objModel := obj.ToObjectModel(senderId, url)
 	db.DB.Create(&objModel)
-	return nil
+	return objModel.ToObject(), nil
 }
