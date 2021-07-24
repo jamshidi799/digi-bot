@@ -1,0 +1,3 @@
+unit test and documentation and code coverage
+multi threading
+better database structure
