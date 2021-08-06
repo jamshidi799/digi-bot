@@ -31,6 +31,9 @@ func Init() *gorm.DB {
 		DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
 			log.Println(err)
+		} else {
+			log.Println("connected to mysql")
+			break
 		}
 
 		time.Sleep(time.Second * 2)
