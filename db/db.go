@@ -26,7 +26,7 @@ func Init() *gorm.DB {
 	dsn := fmt.Sprintf("root:%s@tcp(%s:3306)/digiBot?charset=utf8mb4&parseTime=True&loc=Local", DbPassword, DbHost)
 	//println(dsn)
 
-	for i := 1; i <= 3; i++ {
+	for i := 1; i <= 5; i++ {
 		log.Printf("connect to db try %d", i)
 		DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
@@ -36,7 +36,7 @@ func Init() *gorm.DB {
 			break
 		}
 
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 4)
 	}
 
 	if err != nil {
