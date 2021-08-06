@@ -3,12 +3,15 @@
 #    second FROM takes only binary file ~10MB
 
 FROM golang:1.16-alpine AS builder
-RUN go version
 
-COPY . "/go/src/github.com/your-login/your-project"
 WORKDIR "/go/src/github.com/your-login/your-project"
 
-RUN go get -v -t  .
+COPY go.mod ./
+COPY go.sum ./
+
+RUN go mod download
+
+COPY . ./
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build  -o /your-app
 
