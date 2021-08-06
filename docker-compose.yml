@@ -8,11 +8,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: mohammad79
       MYSQL_DATABASE: digiBot
+    ports:
+    - 3306:3306
 
   app:
     image: digibot
-    depends_on:
-      - "mysql"
     environment:
       DB_HOST: mysql
       DB_PASSWORD: mohammad79
