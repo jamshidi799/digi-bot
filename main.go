@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	//db.Init()
+	db.Init()
 	var group sync.WaitGroup
 	group.Add(1)
 	go bot.Run(&group)
