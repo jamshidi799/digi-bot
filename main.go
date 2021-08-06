@@ -7,6 +7,7 @@ import (
 	"digi-bot/messageCreator"
 	"digi-bot/model"
 	productService "digi-bot/service/product"
+	"github.com/prprprus/scheduler"
 	"log"
 	"sync"
 	"time"
@@ -20,7 +21,14 @@ func main() {
 	group.Wait()
 	log.Println("bot started")
 	group.Add(1)
-	Scheduler()
+
+	s, err := scheduler.NewScheduler(1000)
+	if err != nil {
+		panic(err)
+	}
+	s.Every().Second(10).Do(Scheduler)
+	//s.Delay().Hour(1).Do(Scheduler)
+	//Scheduler()
 	group.Wait()
 }
 
@@ -28,6 +36,7 @@ func Scheduler() {
 	products := db.GetAllProduct()
 
 	//fmt.Printf("%+v", products)
+	updateCount := 0
 
 	for _, product := range products {
 		newProduct, err := crawler.Crawl(product.Url)
@@ -43,6 +52,8 @@ func Scheduler() {
 			bot.SendUpdateForUser(product.UserId,
 				product.Image,
 				message)
+
+			updateCount++
 		}
 
 		productService.UpdateProduct(product, newProduct)
@@ -50,6 +61,8 @@ func Scheduler() {
 		//break
 		time.Sleep(time.Second * 3)
 	}
+
+	log.Printf("changeDetector finished. num of update: %d \n", updateCount)
 }
 
 func changeDetector(newProduct model.Product, oldProduct model.Product) (message string, isChanged bool) {

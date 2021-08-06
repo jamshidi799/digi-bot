@@ -4,6 +4,7 @@ import (
 	"digi-bot/crawler"
 	"digi-bot/db"
 	"digi-bot/model"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -11,12 +12,12 @@ import (
 func AddProductToDB(senderId int, url string) (model.Product, error) {
 	fmt.Printf("%+v %+v", senderId, url)
 	if res := strings.Contains(url, "digikala.com"); !res {
-		return model.Product{}, nil
+		return model.Product{}, errors.New("ادرس نامعتبر است")
 	}
 
 	product, err := crawler.Crawl(url)
 	if err != nil {
-		return model.Product{}, nil
+		return model.Product{}, err
 	}
 
 	fmt.Printf("%+v", product)

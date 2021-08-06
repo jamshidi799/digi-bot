@@ -43,8 +43,11 @@ func Run(group *sync.WaitGroup) {
 		productService.DeleteAllUserProduct(m.Sender.ID)
 		bot.Reply(m, "لیست کالا با موفقیت پاک شد")
 	})
+
 	bot.Handle("/help", func(m *tb.Message) {
-		// todo
+		bot.Send(m.Sender, messageCreator.CreateHelpMsg(), &tb.SendOptions{
+			ParseMode: "HTML",
+		})
 	})
 
 	bot.Handle(tb.OnText, func(m *tb.Message) {
@@ -70,7 +73,6 @@ func Run(group *sync.WaitGroup) {
 		}
 	})
 
-	// todo: handle /delete and /help command
 
 	bot.Start()
 

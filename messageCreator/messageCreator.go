@@ -58,3 +58,38 @@ func createHeader(product model.Product) String {
 
 	return output
 }
+
+func CreateHelpMsg() string{
+	start := String("/start").
+		Bold().
+		AddNewLine().
+		Append("برای شروع کار از این دستور استفاده کنید").
+		AddNewLine().
+		AddNewLine().
+		ToString()
+
+	add := String("اضافه کردن").
+		Bold().
+		AddNewLine().
+		Append("برای اضافه کردن, آدرس(url) محصول را وارد کنید").
+		AddNewLine().
+		AddNewLine().
+		ToString()
+
+	_delete := String("حذف").
+		Bold().
+		AddNewLine().
+		Append("برای حذف کردن فقط به کالای موردنظر ریپلای بزنید").
+		AddNewLine().
+		AddNewLine().
+		ToString()
+
+	deleteAll := String("/deleteAll").
+		Bold().
+		AddNewLine().
+		Append("این دستور همه محصولات شما را پاک میکند").
+		AddNewLine().
+		ToString()
+
+	return start + add + _delete + deleteAll
+}
