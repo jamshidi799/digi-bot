@@ -1,0 +1,22 @@
+version: "3.7"
+
+services:
+  mysql:
+    image: mysql
+    volumes:
+      - todo-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: mohammad79
+      MYSQL_DATABASE: digiBot
+
+  app:
+    image: digibot
+    depends_on:
+      - "mysql"
+    environment:
+      DB_HOST: mysql
+      DB_PASSWORD: mohammad79
+
+
+volumes:
+  todo-mysql-data:
