@@ -5,12 +5,12 @@ import (
 	"digi-bot/db"
 	"digi-bot/model"
 	"errors"
-	"fmt"
+	"log"
 	"strings"
 )
 
 func AddProductToDB(senderId int, url string) (model.Product, error) {
-	fmt.Printf("%+v %+v", senderId, url)
+	//fmt.Printf("%+v %+v\n", senderId, url)
 	if res := strings.Contains(url, "digikala.com"); !res {
 		return model.Product{}, errors.New("ادرس نامعتبر است")
 	}
@@ -20,9 +20,11 @@ func AddProductToDB(senderId int, url string) (model.Product, error) {
 		return model.Product{}, err
 	}
 
-	fmt.Printf("%+v", product)
+	//fmt.Printf("%+v", product)
 	productModel := product.ToProductModel(senderId)
 	db.DB.Create(&productModel)
+
+	log.Printf("new product added: %s\n", product.Name)
 	return productModel.ToProduct(), nil
 }
 

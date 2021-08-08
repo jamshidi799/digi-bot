@@ -18,7 +18,8 @@ var Bot *tb.Bot
 
 // todo: create interface and add other clients
 func Run(group *sync.WaitGroup) {
-	var token = "1700540701:AAGiNrhQNdha0FJVm9icPiv4VghZw7o1eE8"
+	var token = "1767506686:AAFP-w40DbrbhhVQLk6g2aGz3KqhF5oZugI"
+	//var token = "1700540701:AAGiNrhQNdha0FJVm9icPiv4VghZw7o1eE8"
 	bot, err := tb.NewBot(tb.Settings{
 		Token:  token,
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
@@ -36,12 +37,18 @@ func Run(group *sync.WaitGroup) {
 		userModel := model.ToUserModel(m.Sender)
 		db.DB.Create(&userModel)
 
-		_, _ = bot.Send(m.Sender, "آدرس کالا را وارد کنید")
+		_, _ = bot.Send(m.Sender, messageCreator.CreateHelpMsg(), &tb.SendOptions{
+			ParseMode: "HTML",
+		})
 	})
 
-	bot.Handle("/deleteAll", func(m *tb.Message) {
+	bot.Handle("/delete-all", func(m *tb.Message) {
 		productService.DeleteAllUserProduct(m.Sender.ID)
 		bot.Reply(m, "لیست کالا با موفقیت پاک شد")
+	})
+
+	bot.Handle("/delete", func(m *tb.Message) {
+		//todo
 	})
 
 	bot.Handle("/help", func(m *tb.Message) {
@@ -65,7 +72,6 @@ func Run(group *sync.WaitGroup) {
 				_, _ = bot.Send(m.Sender, err.Error())
 			} else {
 				message := messageCreator.CreatePreviewMsg(product)
-				log.Printf("new product added: %s\n", product.Name)
 				_, _ = bot.Send(m.Sender, message, &tb.SendOptions{
 					ParseMode: "HTML",
 				})

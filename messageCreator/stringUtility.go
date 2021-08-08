@@ -2,6 +2,7 @@ package messageCreator
 
 import (
 	"fmt"
+	"regexp"
 )
 
 type String string
@@ -34,4 +35,19 @@ func (str String) Append(str2 string) String {
 
 func (str String) ToString() string {
 	return string(str)
+}
+
+func FixNumber(str string) int {
+	re := regexp.MustCompile(`[^۰۱۲۳۴۵۶۷۸۹]`)
+	return convertToEnglishNumber(re.ReplaceAllString(str, ""))
+}
+
+func convertToEnglishNumber(number string) int {
+	enNum := 0
+	dict := map[rune]int{'۱': 1, '۲': 2, '۳': 3, '۴': 4, '۵': 5, '۶': 6, '۷': 7, '۸': 8, '۹': 9, '۰': 0}
+	for _, char := range number {
+		enNum = enNum*10 + dict[char]
+	}
+
+	return enNum
 }

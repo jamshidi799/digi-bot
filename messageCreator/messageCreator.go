@@ -6,14 +6,24 @@ import (
 )
 
 func CreateNormalPriceChangeMsg(product model.Product, newPrice int, oldPrice int) string {
-	output := createHeader(product).
-		Append(fmt.Sprintf("%s -> %s", Number(oldPrice).AddComma(), Number(newPrice).AddComma()))
+	output := createHeader(product)
+	if oldPrice == 0 {
+		output = output.
+			Append(fmt.Sprintf("ناموجود😱🔒 -> %s", Number(oldPrice).AddComma()))
+
+	} else {
+		output = output.
+			Append(fmt.Sprintf("%s -> %s", Number(oldPrice).AddComma(), Number(newPrice).AddComma()))
+	}
+
 	return output.ToString()
 }
 
 func CreatePreviewMsg(product model.Product) string {
-	output := String(product.Name).
+	output := String(`🟣`).
+		Append(product.Name).
 		Bold().
+		AddNewLine().
 		AddNewLine()
 	if product.Price != product.OldPrice {
 		output = output.
@@ -25,28 +35,33 @@ func CreatePreviewMsg(product model.Product) string {
 				Number(product.Price).
 					AddComma()))
 	} else {
-		output = output.
-			Append("قیمت: ").
-			Append(Number(product.Price).AddComma().ToString())
+		if product.Price != 0 {
+			output = output.
+				Append("قیمت: ").
+				Append(Number(product.Price).AddComma().ToString())
+		} else {
+			output = output.
+				Append(String("ناموجود😱🔒").Bold().ToString())
+		}
 	}
 
 	output = output.
 		AddNewLine().
 		AddNewLine().
-		Append("کالا با موفقیت ذخیره شد. برای اضافه کردن کالای جدید کافی است فقط آدرس آن را وارد کنید")
+		Append("✅ کالا با موفقیت ذخیره شد. برای اضافه کردن کالای جدید کافی است فقط آدرس آن را وارد کنید")
 
 	return output.ToString()
 }
 
 func CreateNotAvailableMsg(product model.Product) string {
 	output := createHeader(product).
-		Append("ناموجود!")
+		Append(String("ناموجود😱🔒").Bold().ToString())
 
 	return output.ToString()
 }
 
 func CreateDeleteProductSuccessfulMsg(product model.Product) string {
-	output := createHeader(product).Append("با موفقیت از لیست پاک شد")
+	output := createHeader(product).Append("✅ با موفقیت از لیست پاک شد")
 	return output.ToString()
 }
 
@@ -59,26 +74,16 @@ func createHeader(product model.Product) String {
 	return output
 }
 
-func CreateHelpMsg() string{
-	start := String("/start").
+func CreateHelpMsg() string {
+	add := String("+").
 		Bold().
-		AddNewLine().
-		Append("برای شروع کار از این دستور استفاده کنید").
-		AddNewLine().
-		AddNewLine().
-		ToString()
-
-	add := String("اضافه کردن").
-		Bold().
-		AddNewLine().
 		Append("برای اضافه کردن, آدرس(url) محصول را وارد کنید").
 		AddNewLine().
 		AddNewLine().
 		ToString()
 
-	_delete := String("حذف").
+	_delete := String("-").
 		Bold().
-		AddNewLine().
 		Append("برای حذف کردن فقط به کالای موردنظر ریپلای بزنید").
 		AddNewLine().
 		AddNewLine().
@@ -91,5 +96,5 @@ func CreateHelpMsg() string{
 		AddNewLine().
 		ToString()
 
-	return start + add + _delete + deleteAll
+	return add + _delete + deleteAll
 }
