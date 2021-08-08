@@ -3,6 +3,7 @@ version: "3.7"
 services:
   mysql:
     image: mysql
+    restart: always
     volumes:
       - todo-mysql-data:/var/lib/mysql
     environment:
@@ -13,6 +14,7 @@ services:
 
   app:
     image: digibot
+    restart: always
     environment:
       DB_HOST: mysql
       DB_PASSWORD: mohammad79
