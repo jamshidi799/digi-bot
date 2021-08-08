@@ -46,13 +46,7 @@ func CreatePreviewMsg(product model.Product) string {
 		}
 	}
 
-	output = output.
-		AddNewLine().
-		Append("🔹").
-		Append(product.Desc1).
-		AddNewLine().
-		Append("🔹").
-		Append(product.Desc2)
+	output = output.Append(createProductDetailMsg(product))
 
 	output = output.
 		AddNewLine().
@@ -106,4 +100,28 @@ func CreateHelpMsg() string {
 		ToString()
 
 	return add + _delete + deleteAll
+}
+
+func createProductDetailMsg(product model.Product) string {
+	output := String("\n")
+	if product.Desc1 != "" {
+		output = output.
+			Append("🔹").
+			Append(product.Desc1).
+			AddNewLine()
+	}
+	if product.Desc2 != "" {
+		output = output.
+			Append("🔹").
+			Append(product.Desc2).
+			AddNewLine()
+	}
+	if product.Desc3 != "" {
+		output = output.
+			Append("🔹").
+			Append(product.Desc3).
+			AddNewLine()
+	}
+
+	return output.ToString()
 }

@@ -35,14 +35,17 @@ func Crawl(url string) (model.Product, error) {
 
 		fmt.Printf("%s %s\n", price, oldPrice)
 
-		desc1 := e.ChildText(".c-product__user-suggestion-line")
-		desc1 = messageCreator.CleaningString(desc1)
-		desc1 = strings.Split(desc1, ".")[0]
+		desc1 := e.ChildText(`div[class="c-product__headline--gallery "]`)
 		product.Desc1 = messageCreator.CleaningString(desc1)
 
-		fmt.Println(e.ChildText("c-product__user-suggestion-line"))
-		desc2 := e.ChildText(".c-product__engagement-rating")
-		product.Desc2 = "امتیاز " + messageCreator.CleaningString(desc2)
+		desc2 := e.ChildText(".c-product__user-suggestion-line")
+		desc2 = messageCreator.CleaningString(desc2)
+		desc2 = strings.Split(desc2, ".")[0]
+		product.Desc2 = messageCreator.CleaningString(desc2)
+
+		desc3 := e.ChildText(".c-product__engagement-rating")
+		product.Desc3 = "امتیاز " + messageCreator.CleaningString(desc3)
+
 	})
 
 	err := c.Visit(url)
