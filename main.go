@@ -26,8 +26,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	s.Every().Second(10).Do(Scheduler)
-	//s.Delay().Hour(1).Do(Scheduler)
+	//s.Every().Second(10).Do(Scheduler)
+	s.Every().Hour(2).Do(Scheduler)
 	//Scheduler()
 	group.Wait()
 }
@@ -35,7 +35,7 @@ func main() {
 func Scheduler() {
 	products := db.GetAllProduct()
 
-	//fmt.Printf("%+v", products)
+	log.Printf("--------------- Scheduler --------------------\n")
 	updateCount := 0
 
 	for _, product := range products {
@@ -63,6 +63,8 @@ func Scheduler() {
 	}
 
 	log.Printf("changeDetector finished. num of update: %d \n", updateCount)
+	log.Printf("--------------- done --------------------\n")
+
 }
 
 func changeDetector(newProduct model.Product, oldProduct model.Product) (message string, isChanged bool) {

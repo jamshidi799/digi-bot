@@ -65,14 +65,13 @@ func Run(group *sync.WaitGroup) {
 				_, _ = bot.Send(m.Sender, err.Error())
 			} else {
 				message := messageCreator.CreatePreviewMsg(product)
-				log.Println(message)
+				log.Printf("new product added: %s\n", product.Name)
 				_, _ = bot.Send(m.Sender, message, &tb.SendOptions{
 					ParseMode: "HTML",
 				})
 			}
 		}
 	})
-
 
 	bot.Start()
 
