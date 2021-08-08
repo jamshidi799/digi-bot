@@ -12,9 +12,6 @@ type ProductModel struct {
 	Name     string
 	Price    int
 	OldPrice int
-	Desc1    string
-	Desc2    string
-	Desc3    string
 }
 
 func (productModel ProductModel) ToProduct() Product {
@@ -23,9 +20,6 @@ func (productModel ProductModel) ToProduct() Product {
 		Url:      productModel.Url,
 		Price:    productModel.Price,
 		OldPrice: productModel.OldPrice,
-		Desc1:    productModel.Desc1,
-		Desc2:    productModel.Desc2,
-		Desc3:    productModel.Desc3,
 	}
 }
 
@@ -46,8 +40,5 @@ func (product Product) ToProductModel(userId int) ProductModel {
 		Name:     product.Name,
 		Price:    product.Price,
 		OldPrice: product.OldPrice,
-		Desc1:    product.Desc1,
-		Desc2:    product.Desc2,
-		Desc3:    product.Desc3,
 	}
 }

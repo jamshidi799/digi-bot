@@ -25,7 +25,7 @@ func AddProductToDB(senderId int, url string) (model.Product, error) {
 	db.DB.Create(&productModel)
 
 	log.Printf("new product added: %s\n", product.Name)
-	return productModel.ToProduct(), nil
+	return product, nil
 }
 
 func UpdateProduct(product model.ProductModel, newProduct model.Product) {
