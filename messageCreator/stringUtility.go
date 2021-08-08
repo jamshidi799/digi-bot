@@ -51,3 +51,17 @@ func convertToEnglishNumber(number string) int {
 
 	return enNum
 }
+
+func CleaningString(str string) string {
+	re := regexp.MustCompile(`\n`)
+	str = re.ReplaceAllString(str, " ")
+	re = regexp.MustCompile(` {2,}`)
+	return re.ReplaceAllString(str, " ")
+}
+
+func CleaningStringWithDelimiter(str string, delimiter string) string {
+	re := regexp.MustCompile(`\n`)
+	str = re.ReplaceAllString(str, delimiter)
+	re = regexp.MustCompile(` {2,}`)
+	return re.ReplaceAllString(str, delimiter)
+}

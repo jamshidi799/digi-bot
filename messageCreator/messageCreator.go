@@ -10,7 +10,6 @@ func CreateNormalPriceChangeMsg(product model.Product, newPrice int, oldPrice in
 	if oldPrice == 0 {
 		output = output.
 			Append(fmt.Sprintf("ناموجود😱🔒 -> %s", Number(oldPrice).AddComma()))
-
 	} else {
 		output = output.
 			Append(fmt.Sprintf("%s -> %s", Number(oldPrice).AddComma(), Number(newPrice).AddComma()))
@@ -24,7 +23,9 @@ func CreatePreviewMsg(product model.Product) string {
 		Append(product.Name).
 		Bold().
 		AddNewLine().
-		AddNewLine()
+		AddNewLine().
+		Append("🔹")
+
 	if product.Price != product.OldPrice {
 		output = output.
 			Append("قیمت: ").
@@ -44,6 +45,14 @@ func CreatePreviewMsg(product model.Product) string {
 				Append(String("ناموجود😱🔒").Bold().ToString())
 		}
 	}
+
+	output = output.
+		AddNewLine().
+		Append("🔹").
+		Append(product.Desc1).
+		AddNewLine().
+		Append("🔹").
+		Append(product.Desc2)
 
 	output = output.
 		AddNewLine().

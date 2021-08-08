@@ -6,54 +6,44 @@ import (
 
 type ProductModel struct {
 	gorm.Model
-	ID            int
-	UserId        int
-	Url           string
-	Name          string
-	AlternateName string
-	Description   string
-	Price         int
-	OldPrice      int
-	Image         string
+	ID       int
+	UserId   int
+	Url      string
+	Name     string
+	Price    int
+	OldPrice int
+	Desc1    string
+	Desc2    string
 }
 
 func (productModel ProductModel) ToProduct() Product {
 	return Product{
-		Name:          productModel.Name,
-		AlternateName: productModel.AlternateName,
-		Url:           productModel.Url,
-		Description:   productModel.Description,
-		Price:         productModel.Price,
-		OldPrice:      productModel.OldPrice,
-		Images:        []string{productModel.Image},
+		Name:     productModel.Name,
+		Url:      productModel.Url,
+		Price:    productModel.Price,
+		OldPrice: productModel.OldPrice,
+		Desc1:    productModel.Desc1,
+		Desc2:    productModel.Desc2,
 	}
 }
 
 type Product struct {
-	Name          string `json:"name"`
-	AlternateName string `json:"alternateName"`
-	Description   string `json:"description"`
-	Url           string
-	Offer         offer `json:"offers"`
-	Price         int
-	OldPrice      int
-	Images        []string `json:"image"`
-}
-
-type offer struct {
-	Price    int `json:"lowPrice"`
-	OldPrice int `json:"highPrice"`
+	Name     string `json:"name"`
+	Url      string
+	Price    int
+	OldPrice int
+	Desc1    string
+	Desc2    string
 }
 
 func (product Product) ToProductModel(userId int) ProductModel {
 	return ProductModel{
-		UserId:        userId,
-		Url:           product.Url,
-		Name:          product.Name,
-		AlternateName: product.AlternateName,
-		Description:   product.Description,
-		Price:         product.Price,
-		OldPrice:      product.OldPrice,
-		Image:         product.Images[0],
+		UserId:   userId,
+		Url:      product.Url,
+		Name:     product.Name,
+		Price:    product.Price,
+		OldPrice: product.OldPrice,
+		Desc1:    product.Desc1,
+		Desc2:    product.Desc2,
 	}
 }

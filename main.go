@@ -50,7 +50,6 @@ func Scheduler() {
 
 		if message, isChanged := changeDetector(newProduct, product.ToProduct()); isChanged {
 			bot.SendUpdateForUser(product.UserId,
-				product.Image,
 				message)
 
 			updateCount++

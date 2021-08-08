@@ -83,7 +83,7 @@ func Run(group *sync.WaitGroup) {
 
 }
 
-func SendUpdateForUser(chatId int, imageUrl string, message string) {
+func SendUpdateForUser(chatId int, message string) {
 	user := db.GetUserById(chatId)
 	//photo := &tb.Photo{File: tb.FromURL(imageUrl)}
 	//imageMsg, _ := Bot.Send(user.ToTbUser(), photo)
