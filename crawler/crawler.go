@@ -44,8 +44,11 @@ func Crawl(url string) (model.Product, error) {
 		product.Desc2 = messageCreator.CleaningString(desc2)
 
 		desc3 := e.ChildText(".c-product__engagement-rating")
-		product.Desc3 = "امتیاز " + messageCreator.CleaningString(desc3)
-
+		if desc3 == "" {
+			product.Desc3 = ""
+		} else {
+			product.Desc3 = "امتیاز " + messageCreator.CleaningString(desc3)
+		}
 	})
 
 	err := c.Visit(url)

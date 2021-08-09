@@ -6,14 +6,22 @@ import (
 )
 
 func CreateNormalPriceChangeMsg(product model.Product, newPrice int, oldPrice int) string {
-	output := createHeader(product)
+	output := createHeader(product).
+		AddNewLine().
+		Append("🔹").Append("قیمت: ")
+
 	if oldPrice == 0 {
 		output = output.
-			Append(fmt.Sprintf("ناموجود😱🔒 -> %s", Number(oldPrice).AddComma()))
+			Append(fmt.Sprintf("ناموجود😱🔒 -> %s", Number(newPrice).AddComma()))
+	} else if newPrice == 0 {
+		output = output.
+			Append(fmt.Sprintf("%s -> ناموجود😱🔒", Number(oldPrice).AddComma()))
 	} else {
 		output = output.
 			Append(fmt.Sprintf("%s -> %s", Number(oldPrice).AddComma(), Number(newPrice).AddComma()))
 	}
+
+	output = output.Append(createProductDetailMsg(product)).AddNewLine()
 
 	return output.ToString()
 }
@@ -58,18 +66,24 @@ func CreatePreviewMsg(product model.Product) string {
 
 func CreateNotAvailableMsg(product model.Product) string {
 	output := createHeader(product).
-		Append(String("ناموجود😱🔒").Bold().ToString())
+		AddNewLine().
+		Append("🔹").
+		Append(String("ناموجود😱🔒").
+			Bold().
+			ToString())
+
+	output = output.Append(createProductDetailMsg(product)).AddNewLine()
 
 	return output.ToString()
 }
 
 func CreateDeleteProductSuccessfulMsg(product model.Product) string {
-	output := createHeader(product).Append("✅ با موفقیت از لیست پاک شد")
+	output := createHeader(product).AddNewLine().Append("✅ با موفقیت از لیست پاک شد").AddNewLine()
 	return output.ToString()
 }
 
 func createHeader(product model.Product) String {
-	output := String(product.Name).
+	output := String(`🟣`).Append(product.Name).
 		Bold().
 		ToLink(product.Url).
 		AddNewLine()

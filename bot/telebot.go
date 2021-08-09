@@ -18,8 +18,8 @@ var Bot *tb.Bot
 
 // todo: create interface and add other clients
 func Run(group *sync.WaitGroup) {
-	//var token = "1767506686:AAFP-w40DbrbhhVQLk6g2aGz3KqhF5oZugI"
-	var token = "1700540701:AAGiNrhQNdha0FJVm9icPiv4VghZw7o1eE8"
+	var token = "1767506686:AAFP-w40DbrbhhVQLk6g2aGz3KqhF5oZugI"
+	//var token = "1700540701:AAGiNrhQNdha0FJVm9icPiv4VghZw7o1eE8"
 	bot, err := tb.NewBot(tb.Settings{
 		Token:  token,
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
@@ -59,7 +59,8 @@ func Run(group *sync.WaitGroup) {
 
 	bot.Handle(tb.OnText, func(m *tb.Message) {
 		if m.IsReply() {
-			productName := strings.Split(m.ReplyTo.Text, "\n")[0]
+			productTitle := strings.Split(m.ReplyTo.Text, "\n")[0]
+			productName := strings.Split(productTitle, `🟣`)[1]
 			product := productService.DeleteProductByName(productName)
 			msg := messageCreator.CreateDeleteProductSuccessfulMsg(product)
 			bot.Reply(m, msg, &tb.SendOptions{
