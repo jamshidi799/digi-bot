@@ -42,7 +42,7 @@ func Run(group *sync.WaitGroup) {
 		})
 	})
 
-	bot.Handle("/delete-all", func(m *tb.Message) {
+	bot.Handle("/deleteall", func(m *tb.Message) {
 		productService.DeleteAllUserProduct(m.Sender.ID)
 		bot.Reply(m, "لیست کالا با موفقیت پاک شد")
 	})

@@ -6,7 +6,6 @@ import (
 	"digi-bot/db"
 	"digi-bot/messageCreator"
 	"digi-bot/model"
-	"github.com/prprprus/scheduler"
 	"log"
 	"sync"
 	"time"
@@ -21,13 +20,12 @@ func main() {
 	log.Println("bot started")
 	group.Add(1)
 
-	s, err := scheduler.NewScheduler(1000)
-	if err != nil {
-		panic(err)
+	for {
+		Scheduler()
+		time.Sleep(time.Hour * 2)
+		//time.Sleep(time.Second * 10)
 	}
-	//s.Every().Second(10).Do(Scheduler)
-	s.Every().Hour(2).Do(Scheduler)
-	//Scheduler()
+
 	group.Wait()
 }
 
