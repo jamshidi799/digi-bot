@@ -5,7 +5,6 @@ import (
 	"digi-bot/model"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gocolly/colly"
 	"log"
 	"strings"
@@ -33,7 +32,7 @@ func Crawl(url string) (model.Product, error) {
 		oldPrice := e.ChildText(".c-product__seller-price-prev.js-rrp-price")
 		product.OldPrice = messageCreator.FixNumber(oldPrice)
 
-		fmt.Printf("%s %s\n", price, oldPrice)
+		//fmt.Printf("%s %s\n", price, oldPrice)
 
 		desc1 := e.ChildText(`div[class="c-product__headline--gallery "]`)
 		product.Desc1 = messageCreator.CleaningString(desc1)

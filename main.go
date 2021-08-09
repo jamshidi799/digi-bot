@@ -44,11 +44,11 @@ func Scheduler() {
 			continue
 		}
 
-		log.Printf("old price: %d, new price: %d",
-			product.Price,
-			newProduct.Price)
-
 		if message, isChanged := changeDetector(newProduct, product.ToProduct()); isChanged {
+			log.Printf("old price: %d, new price: %d",
+				product.Price,
+				newProduct.Price)
+
 			bot.SendUpdateForUser(product.UserId,
 				message)
 
