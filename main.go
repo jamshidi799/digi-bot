@@ -41,6 +41,7 @@ func Scheduler() {
 		newProduct, err := crawler.Crawl(product.Url)
 		if err != nil {
 			log.Println(newProduct)
+			continue
 		}
 
 		log.Printf("old price: %d, new price: %d",
