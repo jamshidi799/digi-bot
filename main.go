@@ -25,8 +25,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	s.Every().Second(10).Do(Scheduler)
-	//s.Every().Hour(2).Do(Scheduler)
+	//s.Every().Second(10).Do(Scheduler)
+	s.Every().Hour(2).Do(Scheduler)
 	//Scheduler()
 	group.Wait()
 }
