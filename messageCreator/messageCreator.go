@@ -106,7 +106,7 @@ func CreateHelpMsg() string {
 		AddNewLine().
 		ToString()
 
-	deleteAll := String("/deleteAll").
+	deleteAll := String("/deleteall").
 		Bold().
 		AddNewLine().
 		Append("این دستور همه محصولات شما را پاک میکند").

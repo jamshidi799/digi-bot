@@ -6,6 +6,7 @@ import (
 	"digi-bot/db"
 	"digi-bot/messageCreator"
 	"digi-bot/model"
+	productService "digi-bot/service/product"
 	"log"
 	"sync"
 	"time"
@@ -53,7 +54,7 @@ func Scheduler() {
 			updateCount++
 		}
 
-		//productService.UpdateProduct(product, newProduct)
+		productService.UpdateProduct(product, newProduct)
 
 		//break
 		time.Sleep(time.Second * 3)
