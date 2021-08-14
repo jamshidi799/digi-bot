@@ -6,6 +6,7 @@ import (
 	"digi-bot/db"
 	"digi-bot/messageCreator"
 	"digi-bot/model"
+	productService "digi-bot/service/product"
 	"log"
 	"sync"
 	"time"
@@ -20,11 +21,11 @@ func main() {
 	log.Println("bot started")
 	group.Add(1)
 
-	for {
-		Scheduler()
-		time.Sleep(time.Hour * 2)
-		//time.Sleep(time.Second * 10)
-	}
+	//for {
+	//	Scheduler()
+	//	time.Sleep(time.Hour * 2)
+	//	//time.Sleep(time.Second * 10)
+	//}
 
 	group.Wait()
 }
@@ -47,13 +48,14 @@ func Scheduler() {
 				product.Price,
 				newProduct.Price)
 
-			bot.SendUpdateForUser(product.UserId,
-				message)
+			usersId := db.GetAllUsersIdByProductId(product.ID)
+			log.Printf("user affected: %d", len(usersId))
+			bot.SendUpdateForUsers(usersId, message)
 
 			updateCount++
 		}
 
-		//productService.UpdateProduct(product, newProduct)
+		productService.UpdateProduct(product, newProduct)
 
 		//break
 		time.Sleep(time.Second * 3)

@@ -139,3 +139,14 @@ func createProductDetailMsg(product model.Product) string {
 
 	return output.ToString()
 }
+
+func CreateProductListMsg(products []string) string {
+	str := String("")
+	for _, product := range products {
+		str = str.Append("🔹").
+			Append(product).
+			AddNewLine().
+			AddNewLine()
+	}
+	return str.AddNewLine().AddNewLine().ToString()
+}

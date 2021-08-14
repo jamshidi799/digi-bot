@@ -9,9 +9,9 @@ type UserModel struct {
 	gorm.Model
 	ID              int
 	Username        string `gorm:"unique_index"`
-	FirstName       string `gorm:"size:1024"`
-	LastName        string `gorm:"size:1024"`
-	LanguageCode    string `gorm:"size:1024"`
+	FirstName       string `gorm:"size:64"`
+	LastName        string `gorm:"size:64"`
+	LanguageCode    string `gorm:"size:64"`
 	IsBot           bool
 	CanJoinGroups   bool
 	CanReadMessages bool

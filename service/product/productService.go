@@ -3,6 +3,7 @@ package product
 import (
 	"digi-bot/crawler"
 	"digi-bot/db"
+	"digi-bot/messageCreator"
 	"digi-bot/model"
 	"errors"
 	"log"
@@ -21,8 +22,16 @@ func AddProductToDB(senderId int, url string) (model.Product, error) {
 	}
 
 	//fmt.Printf("%+v", product)
-	productModel := product.ToProductModel(senderId)
-	db.DB.Create(&productModel)
+	productModel := product.ToProductModel()
+
+	result := db.DB.Where(productModel).Find(&productModel)
+	if result.RowsAffected == 0 {
+		productModel = product.ToProductModel()
+		db.DB.Create(&productModel)
+	}
+
+	pivot := model.PivotModel{UserId: senderId, ProductId: productModel.ID}
+	db.DB.Create(&pivot)
 
 	log.Printf("new product added: %s\n", product.Name)
 	return product, nil
@@ -30,16 +39,43 @@ func AddProductToDB(senderId int, url string) (model.Product, error) {
 
 func UpdateProduct(product model.ProductModel, newProduct model.Product) {
 	product.Price = newProduct.Price
-	product.OldPrice = newProduct.OldPrice
 	db.DB.Save(&product)
 }
+
 func DeleteAllUserProduct(userId int) {
-	db.DB.Where("user_id = ?", userId).Delete(&model.ProductModel{})
+	db.DB.Where("user_id = ?", userId).Delete(&model.PivotModel{})
 }
 
-func DeleteProductByName(name string) model.Product {
-	var product model.ProductModel
+func DeleteProductByName(name string, userId int) string {
+	var ids []int
 	name = strings.TrimSpace(name)
-	db.DB.Where("name = ?", name).First(&product).Delete(&model.ProductModel{})
-	return product.ToProduct()
+
+	db.DB.
+		Select("pivot_models.id").
+		Model(&model.PivotModel{}).
+		Joins("JOIN product_models product on product.id = pivot_models.product_id").
+		Where("product.name = ? AND pivot_models.user_id = ?", name, userId).
+		Find(&ids)
+
+	if len(ids) == 0 {
+		return "پروداکت یافت نشد!"
+	}
+
+	var deletedPivot model.PivotModel
+	db.DB.
+		Model(&model.PivotModel{}).
+		Where("id IN ?", ids).
+		First(&deletedPivot).
+		Delete(&model.PivotModel{})
+
+	product := db.GetProductById(deletedPivot.ProductId)
+
+	msg := messageCreator.CreateDeleteProductSuccessfulMsg(product.ToProduct())
+
+	return msg
+}
+
+func GetProductList(userId int) string {
+	products := db.GetAllProductByUserId(userId)
+	return messageCreator.CreateProductListMsg(products)
 }

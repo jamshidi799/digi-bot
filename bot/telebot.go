@@ -18,8 +18,8 @@ var Bot *tb.Bot
 
 // todo: create interface and add other clients
 func Run(group *sync.WaitGroup) {
-	//var token = "1767506686:AAFP-w40DbrbhhVQLk6g2aGz3KqhF5oZugI"
-	var token = "1700540701:AAGiNrhQNdha0FJVm9icPiv4VghZw7o1eE8"
+	//var token = "1767506686:AAFP-w40DbrbhhVQLk6g2aGz3KqhF5oZugI"	// digiBot
+	var token = "1700540701:AAGiNrhQNdha0FJVm9icPiv4VghZw7o1eE8" // goTestBot
 	bot, err := tb.NewBot(tb.Settings{
 		Token:  token,
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
@@ -57,12 +57,17 @@ func Run(group *sync.WaitGroup) {
 		})
 	})
 
+	bot.Handle("/list", func(m *tb.Message) {
+		_, err = bot.Send(m.Sender, productService.GetProductList(m.Sender.ID), &tb.SendOptions{
+			ParseMode: "HTML",
+		})
+	})
+
 	bot.Handle(tb.OnText, func(m *tb.Message) {
 		if m.IsReply() {
 			productTitle := strings.Split(m.ReplyTo.Text, "\n")[0]
 			productName := strings.Split(productTitle, `🟣`)[1]
-			product := productService.DeleteProductByName(productName)
-			msg := messageCreator.CreateDeleteProductSuccessfulMsg(product)
+			msg := productService.DeleteProductByName(productName, m.Sender.ID)
 			bot.Reply(m, msg, &tb.SendOptions{
 				ParseMode: "HTML",
 			})
@@ -84,17 +89,14 @@ func Run(group *sync.WaitGroup) {
 
 }
 
-func SendUpdateForUser(chatId int, message string) {
-	user := db.GetUserById(chatId)
-	//photo := &tb.Photo{File: tb.FromURL(imageUrl)}
-	//imageMsg, _ := Bot.Send(user.ToTbUser(), photo)
-	//Bot.Reply(imageMsg, message, &tb.SendOptions{
-	//	ParseMode: "HTML",
-	//})
+func SendUpdateForUsers(usersId []int, message string) {
+	for _, userId := range usersId {
+		user := db.GetUserById(userId)
+		_, _ = Bot.Send(user.ToTbUser(), message, &tb.SendOptions{
+			ParseMode: "HTML",
+		})
+	}
 
-	_, _ = Bot.Send(user.ToTbUser(), message, &tb.SendOptions{
-		ParseMode: "HTML",
-	})
 }
 
 func Send(chatId int, message string) {
@@ -106,3 +108,9 @@ func Send(chatId int, message string) {
 		log.Fatal(err)
 	}
 }
+
+//photo := &tb.Photo{File: tb.FromURL(imageUrl)}
+//imageMsg, _ := Bot.Send(user.ToTbUser(), photo)
+//Bot.Reply(imageMsg, message, &tb.SendOptions{
+//	ParseMode: "HTML",
+//})
