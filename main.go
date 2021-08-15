@@ -43,7 +43,7 @@ func Scheduler() {
 			continue
 		}
 
-		if message, isChanged := changeDetector(newProduct, product.ToProduct()); isChanged {
+		if message, isChanged := changeDetector(newProduct, product.ToDto()); isChanged {
 			log.Printf("old price: %d, new price: %d",
 				product.Price,
 				newProduct.Price)
@@ -66,7 +66,7 @@ func Scheduler() {
 
 }
 
-func changeDetector(newProduct model.Product, oldProduct model.Product) (message string, isChanged bool) {
+func changeDetector(newProduct model.ProductDto, oldProduct model.ProductDto) (message string, isChanged bool) {
 	if newProduct.Price == oldProduct.Price {
 		return "", false
 	}

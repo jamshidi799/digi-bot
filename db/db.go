@@ -48,7 +48,8 @@ func Init() *gorm.DB {
 }
 
 func migration() {
-	_ = DB.AutoMigrate(&model.UserModel{})
-	_ = DB.AutoMigrate(&model.ProductModel{})
-	_ = DB.AutoMigrate(&model.PivotModel{})
+	_ = DB.AutoMigrate(&model.User{})
+	_ = DB.AutoMigrate(&model.Product{})
+	_ = DB.AutoMigrate(&model.Pivot{})
+	_ = DB.AutoMigrate(&model.History{})
 }

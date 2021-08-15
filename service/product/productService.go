@@ -10,40 +10,40 @@ import (
 	"strings"
 )
 
-func AddProductToDB(senderId int, url string) (model.Product, error) {
+func AddProductToDB(senderId int, url string) (model.ProductDto, error) {
 	//fmt.Printf("%+v %+v\n", senderId, url)
 	if res := strings.Contains(url, "digikala.com"); !res {
-		return model.Product{}, errors.New("ادرس نامعتبر است")
+		return model.ProductDto{}, errors.New("ادرس نامعتبر است")
 	}
 
 	product, err := crawler.Crawl(url)
 	if err != nil {
-		return model.Product{}, err
+		return model.ProductDto{}, err
 	}
 
 	//fmt.Printf("%+v", product)
-	productModel := product.ToProductModel()
+	productModel := product.ToProduct()
 
 	result := db.DB.Where(productModel).Find(&productModel)
 	if result.RowsAffected == 0 {
-		productModel = product.ToProductModel()
+		productModel = product.ToProduct()
 		db.DB.Create(&productModel)
 	}
 
-	pivot := model.PivotModel{UserId: senderId, ProductId: productModel.ID}
+	pivot := model.Pivot{UserID: senderId, ProductID: productModel.ID}
 	db.DB.Create(&pivot)
 
 	log.Printf("new product added: %s\n", product.Name)
 	return product, nil
 }
 
-func UpdateProduct(product model.ProductModel, newProduct model.Product) {
+func UpdateProduct(product model.Product, newProduct model.ProductDto) {
 	product.Price = newProduct.Price
 	db.DB.Save(&product)
 }
 
 func DeleteAllUserProduct(userId int) {
-	db.DB.Where("user_id = ?", userId).Delete(&model.PivotModel{})
+	db.DB.Where("user_id = ?", userId).Delete(&model.Pivot{})
 }
 
 func DeleteProductByName(name string, userId int) string {
@@ -51,26 +51,26 @@ func DeleteProductByName(name string, userId int) string {
 	name = strings.TrimSpace(name)
 
 	db.DB.
-		Select("pivot_models.id").
-		Model(&model.PivotModel{}).
-		Joins("JOIN product_models product on product.id = pivot_models.product_id").
-		Where("product.name = ? AND pivot_models.user_id = ?", name, userId).
+		Select("pivots.id").
+		Model(&model.Product{}).
+		Joins("JOIN products product on product.id = pivots.product_id").
+		Where("product.name = ? AND pivots.user_id = ?", name, userId).
 		Find(&ids)
 
 	if len(ids) == 0 {
 		return "پروداکت یافت نشد!"
 	}
 
-	var deletedPivot model.PivotModel
+	var deletedPivot model.Pivot
 	db.DB.
-		Model(&model.PivotModel{}).
+		Model(&model.Pivot{}).
 		Where("id IN ?", ids).
 		First(&deletedPivot).
-		Delete(&model.PivotModel{})
+		Delete(&model.Pivot{})
 
-	product := db.GetProductById(deletedPivot.ProductId)
+	product := db.GetProductById(deletedPivot.ProductID)
 
-	msg := messageCreator.CreateDeleteProductSuccessfulMsg(product.ToProduct())
+	msg := messageCreator.CreateDeleteProductSuccessfulMsg(product.ToDto())
 
 	return msg
 }

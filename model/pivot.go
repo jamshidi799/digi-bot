@@ -2,9 +2,9 @@ package model
 
 import "github.com/jinzhu/gorm"
 
-type PivotModel struct {
+type Pivot struct {
 	gorm.Model
 	ID        int
-	UserId    int
-	ProductId int
+	UserID    int
+	ProductID int
 }

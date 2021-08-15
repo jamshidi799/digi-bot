@@ -7,7 +7,6 @@ import (
 	productService "digi-bot/service/product"
 	"fmt"
 	"log"
-	"strings"
 	"sync"
 	"time"
 
@@ -34,7 +33,7 @@ func Run(group *sync.WaitGroup) {
 	group.Done()
 
 	bot.Handle("/start", func(m *tb.Message) {
-		userModel := model.ToUserModel(m.Sender)
+		userModel := model.ToUser(m.Sender)
 		db.DB.Create(&userModel)
 
 		_, _ = bot.Send(m.Sender, messageCreator.CreateHelpMsg(), &tb.SendOptions{
@@ -48,7 +47,28 @@ func Run(group *sync.WaitGroup) {
 	})
 
 	bot.Handle("/delete", func(m *tb.Message) {
-		//todo
+		bot.Reply(m, "اسم کالا را وارد کنید")
+		bot.Handle(tb.OnText, func(m *tb.Message) {
+			msg := productService.DeleteProductByName(m.Text, m.Sender.ID)
+			bot.Reply(m, msg, &tb.SendOptions{
+				ParseMode: "HTML",
+			})
+		})
+	})
+
+	bot.Handle("/add", func(m *tb.Message) {
+		bot.Reply(m, "آدرس (url) کالا را وارد کنید")
+		bot.Handle(tb.OnText, func(m *tb.Message) {
+			product, err := productService.AddProductToDB(m.Sender.ID, m.Text)
+			if err != nil {
+				_, _ = bot.Send(m.Sender, err.Error())
+			} else {
+				message := messageCreator.CreatePreviewMsg(product)
+				_, _ = bot.Send(m.Sender, message, &tb.SendOptions{
+					ParseMode: "HTML",
+				})
+			}
+		})
 	})
 
 	bot.Handle("/help", func(m *tb.Message) {
@@ -61,28 +81,6 @@ func Run(group *sync.WaitGroup) {
 		_, err = bot.Send(m.Sender, productService.GetProductList(m.Sender.ID), &tb.SendOptions{
 			ParseMode: "HTML",
 		})
-	})
-
-	bot.Handle(tb.OnText, func(m *tb.Message) {
-		if m.IsReply() {
-			productTitle := strings.Split(m.ReplyTo.Text, "\n")[0]
-			productName := strings.Split(productTitle, `🟣`)[1]
-			msg := productService.DeleteProductByName(productName, m.Sender.ID)
-			bot.Reply(m, msg, &tb.SendOptions{
-				ParseMode: "HTML",
-			})
-		} else {
-
-			product, err := productService.AddProductToDB(m.Sender.ID, m.Text)
-			if err != nil {
-				_, _ = bot.Send(m.Sender, err.Error())
-			} else {
-				message := messageCreator.CreatePreviewMsg(product)
-				_, _ = bot.Send(m.Sender, message, &tb.SendOptions{
-					ParseMode: "HTML",
-				})
-			}
-		}
 	})
 
 	bot.Start()

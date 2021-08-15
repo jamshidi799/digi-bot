@@ -5,7 +5,7 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-type UserModel struct {
+type User struct {
 	gorm.Model
 	ID              int
 	Username        string `gorm:"unique_index"`
@@ -16,9 +16,10 @@ type UserModel struct {
 	CanJoinGroups   bool
 	CanReadMessages bool
 	SupportsInline  bool
+	Pivots          []Pivot
 }
 
-func (user UserModel) ToTbUser() *tb.User {
+func (user User) ToTbUser() *tb.User {
 	return &tb.User{
 		ID:              user.ID,
 		Username:        user.Username,
@@ -32,8 +33,8 @@ func (user UserModel) ToTbUser() *tb.User {
 	}
 }
 
-func ToUserModel(user *tb.User) UserModel {
-	return UserModel{
+func ToUser(user *tb.User) User {
+	return User{
 		ID:              user.ID,
 		Username:        user.Username,
 		FirstName:       user.FirstName,

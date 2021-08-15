@@ -2,10 +2,11 @@ package db
 
 import (
 	"digi-bot/model"
+	"log"
 )
 
-func GetAllProduct() []model.ProductModel {
-	var products []model.ProductModel
+func GetAllProduct() []model.Product {
+	var products []model.Product
 	DB.Find(&products)
 	return products
 }
@@ -15,16 +16,18 @@ func GetAllProductByUserId(userId int) []string {
 
 	DB.
 		Select("product.name").
-		Model(&model.PivotModel{}).
-		Joins("JOIN product_models product on product.id = pivot_models.product_id").
-		Where("pivot_models.user_id = ?", userId).
+		Model(&model.Pivot{}).
+		Joins("JOIN products product on product.id = pivots.product_id").
+		Where("pivots.user_id = ?", userId).
 		Find(&products)
+
+	log.Println()
 
 	return products
 }
 
-func GetProductById(id int) model.ProductModel {
-	var product model.ProductModel
+func GetProductById(id int) model.Product {
+	var product model.Product
 	DB.First(&product, id)
 	return product
 }
