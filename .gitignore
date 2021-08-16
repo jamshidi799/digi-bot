@@ -9,7 +9,8 @@
 *.test
 *.txt
 
-*.svg
+images/
+*.png
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 

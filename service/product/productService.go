@@ -3,22 +3,25 @@ package product
 import (
 	"digi-bot/crawler"
 	"digi-bot/db"
+	"digi-bot/graph"
 	"digi-bot/messageCreator"
 	"digi-bot/model"
 	"errors"
 	"log"
+	"strconv"
 	"strings"
+	"time"
 )
 
-func AddProductToDB(senderId int, url string) (model.ProductDto, error) {
+func AddProductToDB(senderId int, url string) (model.ProductDto, int, error) {
 	//fmt.Printf("%+v %+v\n", senderId, url)
 	if res := strings.Contains(url, "digikala.com"); !res {
-		return model.ProductDto{}, errors.New("ادرس نامعتبر است")
+		return model.ProductDto{}, 0, errors.New("ادرس نامعتبر است")
 	}
 
 	product, err := crawler.Crawl(url)
 	if err != nil {
-		return model.ProductDto{}, err
+		return model.ProductDto{}, 0, err
 	}
 
 	//fmt.Printf("%+v", product)
@@ -34,27 +37,29 @@ func AddProductToDB(senderId int, url string) (model.ProductDto, error) {
 	db.DB.Create(&pivot)
 
 	log.Printf("new product added: %s\n", product.Name)
-	return product, nil
+	return product, productModel.ID, nil
 }
 
 func UpdateProduct(product model.Product, newProduct model.ProductDto) {
 	product.Price = newProduct.Price
 	db.DB.Save(&product)
+
+	commitPriceChange(newProduct.Price, product.ID)
 }
 
 func DeleteAllUserProduct(userId int) {
 	db.DB.Where("user_id = ?", userId).Delete(&model.Pivot{})
 }
 
-func DeleteProductByName(name string, userId int) string {
+func DeleteProduct(productId string, userId int) string {
 	var ids []int
-	name = strings.TrimSpace(name)
+	id, _ := strconv.Atoi(productId)
 
 	db.DB.
 		Select("pivots.id").
-		Model(&model.Product{}).
+		Model(&model.Pivot{}).
 		Joins("JOIN products product on product.id = pivots.product_id").
-		Where("product.name = ? AND pivots.user_id = ?", name, userId).
+		Where("product.id = ? AND pivots.user_id = ?", id, userId).
 		Find(&ids)
 
 	if len(ids) == 0 {
@@ -78,4 +83,19 @@ func DeleteProductByName(name string, userId int) string {
 func GetProductList(userId int) string {
 	products := db.GetAllProductByUserId(userId)
 	return messageCreator.CreateProductListMsg(products)
+}
+
+func commitPriceChange(price int, productID int) {
+	db.DB.Create(&model.History{Price: price, ProductID: productID, Date: time.Now()})
+}
+
+func GetGraphPicName(productId int) string {
+	var prices []model.History
+	db.DB.
+		Model(&model.History{}).
+		Joins("JOIN products product on product.id = histories.product_id").
+		Where("product.id = ?", productId).
+		Find(&prices)
+
+	return graph.LinearRegreasion(prices)
 }

@@ -13,7 +13,7 @@ func GetUserById(userId int) model.User {
 func GetAllUsersIdByProductId(productId int) []int {
 	var usersId []int
 	DB.
-		Table("pivot_models").
+		Table("pivots").
 		Where(model.Pivot{ProductID: productId}).
 		Select("user_id").
 		Distinct("user_id").

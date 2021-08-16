@@ -1,18 +1,22 @@
-package messageCreator
+package graph
 
 import (
+	"digi-bot/model"
+	"fmt"
 	"github.com/wcharczuk/go-chart/v2"
 	"github.com/wcharczuk/go-chart/v2/drawing"
+	"math/rand"
 	"os"
 	"time"
 )
 
-func main() {
-	linearRegreasion(xvalues(), yvalues())
-	stockAnalysis(xvalues(), yvalues())
-}
-
-func linearRegreasion(xvalues []time.Time, yvalues []float64) {
+func LinearRegreasion(histories []model.History) string {
+	var xvalues []time.Time
+	var yvalues []float64
+	for _, history := range histories {
+		xvalues = append(xvalues, history.Date)
+		yvalues = append(yvalues, float64(history.Price))
+	}
 
 	mainSeries := chart.TimeSeries{
 		Style: chart.Style{
@@ -45,22 +49,29 @@ func linearRegreasion(xvalues []time.Time, yvalues []float64) {
 		chart.Legend(&graph),
 	}
 
-	f, _ := os.Create("./output.svg")
+	filename := fmt.Sprintf("images/%d.png", rand.Int())
+	f, _ := os.Create(filename)
 	defer f.Close()
-	graph.Render(chart.SVG, f)
+	graph.Render(chart.PNG, f)
 
+	return filename
 }
 
-func stockAnalysis(xvalues []time.Time, yvalues []float64) {
-	xv, yv := xvalues, yvalues
+func StockAnalysis(histories []model.History) string {
+	var xvalues []time.Time
+	var yvalues []float64
+	for _, history := range histories {
+		xvalues = append(xvalues, history.Date)
+		yvalues = append(yvalues, float64(history.Price))
+	}
 
 	priceSeries := chart.TimeSeries{
 		Name: "SPY",
 		Style: chart.Style{
 			StrokeColor: chart.GetDefaultColor(0),
 		},
-		XValues: xv,
-		YValues: yv,
+		XValues: xvalues,
+		YValues: yvalues,
 	}
 
 	smaSeries := chart.SMASeries{
@@ -101,6 +112,7 @@ func stockAnalysis(xvalues []time.Time, yvalues []float64) {
 	f, _ := os.Create("STOCK.png")
 	defer f.Close()
 	graph.Render(chart.PNG, f)
+	return ""
 }
 
 func xvalues() []time.Time {

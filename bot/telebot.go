@@ -5,8 +5,8 @@ import (
 	"digi-bot/messageCreator"
 	"digi-bot/model"
 	productService "digi-bot/service/product"
-	"fmt"
 	"log"
+	"strconv"
 	"sync"
 	"time"
 
@@ -32,6 +32,10 @@ func Run(group *sync.WaitGroup) {
 	Bot = bot
 	group.Done()
 
+	selector := &tb.ReplyMarkup{}
+	btnGraph := selector.Data("نمودار قیمت", "graph")
+	btnDelete := selector.Data("حذف", "delete")
+
 	bot.Handle("/start", func(m *tb.Message) {
 		userModel := model.ToUser(m.Sender)
 		db.DB.Create(&userModel)
@@ -46,27 +50,21 @@ func Run(group *sync.WaitGroup) {
 		bot.Reply(m, "لیست کالا با موفقیت پاک شد")
 	})
 
-	bot.Handle("/delete", func(m *tb.Message) {
-		bot.Reply(m, "اسم کالا را وارد کنید")
-		bot.Handle(tb.OnText, func(m *tb.Message) {
-			msg := productService.DeleteProductByName(m.Text, m.Sender.ID)
-			bot.Reply(m, msg, &tb.SendOptions{
-				ParseMode: "HTML",
-			})
-		})
-	})
-
 	bot.Handle("/add", func(m *tb.Message) {
 		bot.Reply(m, "آدرس (url) کالا را وارد کنید")
 		bot.Handle(tb.OnText, func(m *tb.Message) {
-			product, err := productService.AddProductToDB(m.Sender.ID, m.Text)
+			product, productId, err := productService.AddProductToDB(m.Sender.ID, m.Text)
 			if err != nil {
 				_, _ = bot.Send(m.Sender, err.Error())
 			} else {
 				message := messageCreator.CreatePreviewMsg(product)
-				_, _ = bot.Send(m.Sender, message, &tb.SendOptions{
-					ParseMode: "HTML",
-				})
+				_, _ = bot.Send(
+					m.Sender,
+					message,
+					&tb.SendOptions{
+						ParseMode:   "HTML",
+						ReplyMarkup: getProductSelector(productId),
+					})
 			}
 		})
 	})
@@ -83,32 +81,41 @@ func Run(group *sync.WaitGroup) {
 		})
 	})
 
+	bot.Handle(&btnGraph, func(c *tb.Callback) {
+		productId, _ := strconv.Atoi(c.Data)
+		imagePath := productService.GetGraphPicName(productId)
+		image := &tb.Photo{File: tb.FromDisk(imagePath)}
+		bot.Reply(c.Message, image)
+	})
+
+	bot.Handle(&btnDelete, func(c *tb.Callback) {
+		msg := productService.DeleteProduct(c.Data, c.Sender.ID)
+		bot.Reply(c.Message, msg, &tb.SendOptions{
+			ParseMode: "HTML",
+		})
+	})
+
 	bot.Start()
 
 }
 
-func SendUpdateForUsers(usersId []int, message string) {
+func SendUpdateForUsers(usersId []int, productId int, message string) {
 	for _, userId := range usersId {
 		user := db.GetUserById(userId)
 		_, _ = Bot.Send(user.ToTbUser(), message, &tb.SendOptions{
-			ParseMode: "HTML",
+			ParseMode:   "HTML",
+			ReplyMarkup: getProductSelector(productId),
 		})
 	}
-
 }
 
-func Send(chatId int, message string) {
-	user := db.GetUserById(chatId)
-	fmt.Printf("%+v\n", user)
-	fmt.Printf("%+v\n", user.ToTbUser())
-	_, err := Bot.Send(user.ToTbUser(), message)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+func getProductSelector(productId int) *tb.ReplyMarkup {
+	selector := &tb.ReplyMarkup{}
+	btnGraph := selector.Data("نمودار قیمت", "graph", strconv.Itoa(productId))
+	btnDelete := selector.Data("حذف", "delete", strconv.Itoa(productId))
 
-//photo := &tb.Photo{File: tb.FromURL(imageUrl)}
-//imageMsg, _ := Bot.Send(user.ToTbUser(), photo)
-//Bot.Reply(imageMsg, message, &tb.SendOptions{
-//	ParseMode: "HTML",
-//})
+	selector.Inline(
+		selector.Row(btnGraph, btnDelete),
+	)
+	return selector
+}

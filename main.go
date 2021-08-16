@@ -49,13 +49,13 @@ func Scheduler() {
 				newProduct.Price)
 
 			usersId := db.GetAllUsersIdByProductId(product.ID)
-			log.Printf("user affected: %d", len(usersId))
-			bot.SendUpdateForUsers(usersId, message)
 
+			log.Printf("user affected: %d", len(usersId))
+
+			bot.SendUpdateForUsers(usersId, product.ID, message)
+			productService.UpdateProduct(product, newProduct)
 			updateCount++
 		}
-
-		productService.UpdateProduct(product, newProduct)
 
 		//break
 		time.Sleep(time.Second * 3)
