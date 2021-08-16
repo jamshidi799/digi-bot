@@ -11,12 +11,12 @@ import (
 )
 
 // todo: create interface
-func Crawl(url string) (model.Product, error) {
+func Crawl(url string) (model.ProductDto, error) {
 	c := colly.NewCollector(
 		colly.AllowedDomains("digikala.com", "www.digikala.com"),
 	)
 
-	var product model.Product
+	var product model.ProductDto
 	c.OnHTML("script[type=\"application/ld+json\"]", func(e *colly.HTMLElement) {
 		err := json.Unmarshal([]byte(e.Text), &product)
 		if err != nil {

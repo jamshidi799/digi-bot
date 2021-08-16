@@ -43,18 +43,19 @@ func Scheduler() {
 			continue
 		}
 
-		if message, isChanged := changeDetector(newProduct, product.ToProduct()); isChanged {
+		if message, isChanged := changeDetector(newProduct, product.ToDto()); isChanged {
 			log.Printf("old price: %d, new price: %d",
 				product.Price,
 				newProduct.Price)
 
-			bot.SendUpdateForUser(product.UserId,
-				message)
+			usersId := db.GetAllUsersIdByProductId(product.ID)
 
+			log.Printf("user affected: %d", len(usersId))
+
+			bot.SendUpdateForUsers(usersId, product.ID, message)
+			productService.UpdateProduct(product, newProduct)
 			updateCount++
 		}
-
-		productService.UpdateProduct(product, newProduct)
 
 		//break
 		time.Sleep(time.Second * 3)
@@ -65,7 +66,7 @@ func Scheduler() {
 
 }
 
-func changeDetector(newProduct model.Product, oldProduct model.Product) (message string, isChanged bool) {
+func changeDetector(newProduct model.ProductDto, oldProduct model.ProductDto) (message string, isChanged bool) {
 	if newProduct.Price == oldProduct.Price {
 		return "", false
 	}

@@ -4,26 +4,25 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type ProductModel struct {
+type Product struct {
 	gorm.Model
-	ID       int
-	UserId   int
-	Url      string
-	Name     string
-	Price    int
-	OldPrice int
+	ID        int
+	Url       string
+	Name      string
+	Price     int
+	Pivots    []Pivot
+	Histories []History `gorm:"foreignKey:ProductID"`
 }
 
-func (productModel ProductModel) ToProduct() Product {
-	return Product{
-		Name:     productModel.Name,
-		Url:      productModel.Url,
-		Price:    productModel.Price,
-		OldPrice: productModel.OldPrice,
+func (product Product) ToDto() ProductDto {
+	return ProductDto{
+		Name:  product.Name,
+		Url:   product.Url,
+		Price: product.Price,
 	}
 }
 
-type Product struct {
+type ProductDto struct {
 	Name     string `json:"name"`
 	Url      string
 	Price    int
@@ -33,12 +32,10 @@ type Product struct {
 	Desc3    string
 }
 
-func (product Product) ToProductModel(userId int) ProductModel {
-	return ProductModel{
-		UserId:   userId,
-		Url:      product.Url,
-		Name:     product.Name,
-		Price:    product.Price,
-		OldPrice: product.OldPrice,
+func (product ProductDto) ToProduct() Product {
+	return Product{
+		Url:   product.Url,
+		Name:  product.Name,
+		Price: product.Price,
 	}
 }

@@ -3,43 +3,99 @@ package product
 import (
 	"digi-bot/crawler"
 	"digi-bot/db"
+	"digi-bot/graph"
+	"digi-bot/messageCreator"
 	"digi-bot/model"
 	"errors"
 	"log"
+	"strconv"
 	"strings"
+	"time"
 )
 
-func AddProductToDB(senderId int, url string) (model.Product, error) {
+func AddProductToDB(senderId int, url string) (model.ProductDto, int, error) {
 	//fmt.Printf("%+v %+v\n", senderId, url)
 	if res := strings.Contains(url, "digikala.com"); !res {
-		return model.Product{}, errors.New("ادرس نامعتبر است")
+		return model.ProductDto{}, 0, errors.New("ادرس نامعتبر است")
 	}
 
 	product, err := crawler.Crawl(url)
 	if err != nil {
-		return model.Product{}, err
+		return model.ProductDto{}, 0, err
 	}
 
 	//fmt.Printf("%+v", product)
-	productModel := product.ToProductModel(senderId)
-	db.DB.Create(&productModel)
+	productModel := product.ToProduct()
+
+	result := db.DB.Where(productModel).Find(&productModel)
+	if result.RowsAffected == 0 {
+		productModel = product.ToProduct()
+		db.DB.Create(&productModel)
+	}
+
+	pivot := model.Pivot{UserID: senderId, ProductID: productModel.ID}
+	db.DB.Create(&pivot)
 
 	log.Printf("new product added: %s\n", product.Name)
-	return product, nil
+	return product, productModel.ID, nil
 }
 
-func UpdateProduct(product model.ProductModel, newProduct model.Product) {
+func UpdateProduct(product model.Product, newProduct model.ProductDto) {
 	product.Price = newProduct.Price
-	product.OldPrice = newProduct.OldPrice
 	db.DB.Save(&product)
-}
-func DeleteAllUserProduct(userId int) {
-	db.DB.Where("user_id = ?", userId).Delete(&model.ProductModel{})
+
+	commitPriceChange(newProduct.Price, product.ID)
 }
 
-func DeleteProductByName(name string) model.Product {
-	var product model.ProductModel
-	name = strings.TrimSpace(name)
-	db.DB.Where("name = ?", name).First(&product).Delete(&model.ProductModel{})
-	return product.ToProduct()
+func DeleteAllUserProduct(userId int) {
+	db.DB.Where("user_id = ?", userId).Delete(&model.Pivot{})
+}
+
+func DeleteProduct(productId string, userId int) string {
+	var ids []int
+	id, _ := strconv.Atoi(productId)
+
+	db.DB.
+		Select("pivots.id").
+		Model(&model.Pivot{}).
+		Joins("JOIN products product on product.id = pivots.product_id").
+		Where("product.id = ? AND pivots.user_id = ?", id, userId).
+		Find(&ids)
+
+	if len(ids) == 0 {
+		return "پروداکت یافت نشد!"
+	}
+
+	var deletedPivot model.Pivot
+	db.DB.
+		Model(&model.Pivot{}).
+		Where("id IN ?", ids).
+		First(&deletedPivot).
+		Delete(&model.Pivot{})
+
+	product := db.GetProductById(deletedPivot.ProductID)
+
+	msg := messageCreator.CreateDeleteProductSuccessfulMsg(product.ToDto())
+
+	return msg
+}
+
+func GetProductList(userId int) string {
+	products := db.GetAllProductByUserId(userId)
+	return messageCreator.CreateProductListMsg(products)
+}
+
+func commitPriceChange(price int, productID int) {
+	db.DB.Create(&model.History{Price: price, ProductID: productID, Date: time.Now()})
+}
+
+func GetGraphPicName(productId int) string {
+	var prices []model.History
+	db.DB.
+		Model(&model.History{}).
+		Joins("JOIN products product on product.id = histories.product_id").
+		Where("product.id = ?", productId).
+		Find(&prices)
+
+	return graph.LinearRegreasion(prices)
 }

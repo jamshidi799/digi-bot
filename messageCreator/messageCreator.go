@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func CreateNormalPriceChangeMsg(product model.Product, newPrice int, oldPrice int) string {
+func CreateNormalPriceChangeMsg(product model.ProductDto, newPrice int, oldPrice int) string {
 	output := createHeader(product).
 		AddNewLine().
 		Append("🔹").Append("قیمت: ")
@@ -26,7 +26,7 @@ func CreateNormalPriceChangeMsg(product model.Product, newPrice int, oldPrice in
 	return output.ToString()
 }
 
-func CreatePreviewMsg(product model.Product) string {
+func CreatePreviewMsg(product model.ProductDto) string {
 	output := String(`🟣`).
 		Append(product.Name).
 		Bold().
@@ -64,7 +64,7 @@ func CreatePreviewMsg(product model.Product) string {
 	return output.ToString()
 }
 
-func CreateNotAvailableMsg(product model.Product) string {
+func CreateNotAvailableMsg(product model.ProductDto) string {
 	output := createHeader(product).
 		AddNewLine().
 		Append("🔹").
@@ -77,12 +77,12 @@ func CreateNotAvailableMsg(product model.Product) string {
 	return output.ToString()
 }
 
-func CreateDeleteProductSuccessfulMsg(product model.Product) string {
+func CreateDeleteProductSuccessfulMsg(product model.ProductDto) string {
 	output := createHeader(product).AddNewLine().Append("✅ با موفقیت از لیست پاک شد").AddNewLine()
 	return output.ToString()
 }
 
-func createHeader(product model.Product) String {
+func createHeader(product model.ProductDto) String {
 	output := String(`🟣`).Append(product.Name).
 		Bold().
 		ToLink(product.Url).
@@ -116,7 +116,7 @@ func CreateHelpMsg() string {
 	return add + _delete + deleteAll
 }
 
-func createProductDetailMsg(product model.Product) string {
+func createProductDetailMsg(product model.ProductDto) string {
 	output := String("\n")
 	if product.Desc1 != "" {
 		output = output.
@@ -138,4 +138,15 @@ func createProductDetailMsg(product model.Product) string {
 	}
 
 	return output.ToString()
+}
+
+func CreateProductListMsg(products []string) string {
+	str := String("")
+	for _, product := range products {
+		str = str.Append("🔹").
+			Append(product).
+			AddNewLine().
+			AddNewLine()
+	}
+	return str.AddNewLine().AddNewLine().ToString()
 }
