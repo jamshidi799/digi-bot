@@ -56,11 +56,6 @@ func CreatePreviewMsg(product model.ProductDto) string {
 
 	output = output.Append(createProductDetailMsg(product))
 
-	output = output.
-		AddNewLine().
-		AddNewLine().
-		Append("✅ کالا با موفقیت ذخیره شد. برای اضافه کردن کالای جدید کافی است فقط آدرس آن را وارد کنید")
-
 	return output.ToString()
 }
 
@@ -92,16 +87,26 @@ func createHeader(product model.ProductDto) String {
 }
 
 func CreateHelpMsg() string {
-	add := String("+").
+	start := String("/start").
 		Bold().
-		Append("برای اضافه کردن, آدرس(url) محصول را وارد کنید").
+		AddNewLine().
+		Append("قبل از شروع کار با بات(وارد کردن کالاها) حتما این دستور رو وارد کنید").
 		AddNewLine().
 		AddNewLine().
 		ToString()
 
-	_delete := String("-").
+	add := String("/add").
 		Bold().
-		Append("برای حذف کردن فقط به کالای موردنظر ریپلای بزنید").
+		AddNewLine().
+		Append("برای اضافه کردن کالا (فعلا فقط کالاهای دیجی‌کالا ساپورت میشه)").
+		AddNewLine().
+		AddNewLine().
+		ToString()
+
+	list := String("/list").
+		Bold().
+		AddNewLine().
+		Append("برای دریافت لیست کالاهای اضافه شده").
 		AddNewLine().
 		AddNewLine().
 		ToString()
@@ -111,9 +116,10 @@ func CreateHelpMsg() string {
 		AddNewLine().
 		Append("این دستور همه محصولات شما را پاک میکند").
 		AddNewLine().
+		AddNewLine().
 		ToString()
 
-	return add + _delete + deleteAll
+	return start + add + list + deleteAll
 }
 
 func createProductDetailMsg(product model.ProductDto) string {
