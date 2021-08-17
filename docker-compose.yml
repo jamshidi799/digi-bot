@@ -9,6 +9,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: mohammad79
       MYSQL_DATABASE: digiBot
+      BOT_TOKEN: 1767506686:AAFP-w40DbrbhhVQLk6g2aGz3KqhF5oZugI
     ports:
     - 3306:3306
 

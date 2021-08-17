@@ -5,7 +5,9 @@ import (
 	"digi-bot/messageCreator"
 	"digi-bot/model"
 	productService "digi-bot/service/product"
+	"github.com/joho/godotenv"
 	"log"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -17,8 +19,13 @@ var Bot *tb.Bot
 
 // todo: create interface and add other clients
 func Run(group *sync.WaitGroup) {
-	//var token = "1767506686:AAFP-w40DbrbhhVQLk6g2aGz3KqhF5oZugI"
-	var token = "1700540701:AAGiNrhQNdha0FJVm9icPiv4VghZw7o1eE8"
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Println("Error loading .env file")
+	}
+
+	token := os.Getenv("BOT_TOKEN")
 	bot, err := tb.NewBot(tb.Settings{
 		Token:  token,
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
