@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func LinearRegreasion(histories []model.History) string {
+func LinearRegreasion(histories []model.History) (string, error) {
 	var xvalues []time.Time
 	var yvalues []float64
 	for _, history := range histories {
@@ -52,9 +52,9 @@ func LinearRegreasion(histories []model.History) string {
 	filename := fmt.Sprintf("images/%d.png", rand.Int())
 	f, _ := os.Create(filename)
 	defer f.Close()
-	graph.Render(chart.PNG, f)
+	err := graph.Render(chart.PNG, f)
 
-	return filename
+	return filename, err
 }
 
 func StockAnalysis(histories []model.History) string {

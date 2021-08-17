@@ -17,8 +17,8 @@ var Bot *tb.Bot
 
 // todo: create interface and add other clients
 func Run(group *sync.WaitGroup) {
-	var token = "1767506686:AAFP-w40DbrbhhVQLk6g2aGz3KqhF5oZugI"
-	//var token = "1700540701:AAGiNrhQNdha0FJVm9icPiv4VghZw7o1eE8"
+	//var token = "1767506686:AAFP-w40DbrbhhVQLk6g2aGz3KqhF5oZugI"
+	var token = "1700540701:AAGiNrhQNdha0FJVm9icPiv4VghZw7o1eE8"
 	bot, err := tb.NewBot(tb.Settings{
 		Token:  token,
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
@@ -43,11 +43,15 @@ func Run(group *sync.WaitGroup) {
 		_, _ = bot.Send(m.Sender, messageCreator.CreateHelpMsg(), &tb.SendOptions{
 			ParseMode: "HTML",
 		})
+
+		commandLogs("start", m.Sender.ID)
 	})
 
 	bot.Handle("/deleteall", func(m *tb.Message) {
 		productService.DeleteAllUserProduct(m.Sender.ID)
 		bot.Reply(m, "لیست کالا با موفقیت پاک شد")
+
+		commandLogs("delete all", m.Sender.ID)
 	})
 
 	bot.Handle("/add", func(m *tb.Message) {
@@ -67,25 +71,36 @@ func Run(group *sync.WaitGroup) {
 					})
 			}
 		})
+
+		commandLogs("add", m.Sender.ID)
 	})
 
 	bot.Handle("/help", func(m *tb.Message) {
 		bot.Send(m.Sender, messageCreator.CreateHelpMsg(), &tb.SendOptions{
 			ParseMode: "HTML",
 		})
+
+		commandLogs("help", m.Sender.ID)
 	})
 
 	bot.Handle("/list", func(m *tb.Message) {
 		_, err = bot.Send(m.Sender, productService.GetProductList(m.Sender.ID), &tb.SendOptions{
 			ParseMode: "HTML",
 		})
+
+		commandLogs("list", m.Sender.ID)
 	})
 
 	bot.Handle(&btnGraph, func(c *tb.Callback) {
-		productId, _ := strconv.Atoi(c.Data)
-		imagePath := productService.GetGraphPicName(productId)
-		image := &tb.Photo{File: tb.FromDisk(imagePath)}
-		bot.Reply(c.Message, image)
+		imagePath, err := productService.GetGraphPicName(c.Data)
+		if err != nil {
+			bot.Reply(c.Message, err)
+		} else {
+			image := &tb.Photo{File: tb.FromDisk(imagePath)}
+			bot.Reply(c.Message, image)
+		}
+		log.Println(imagePath)
+		commandLogs("graph", c.Sender.ID)
 	})
 
 	bot.Handle(&btnDelete, func(c *tb.Callback) {
@@ -93,6 +108,8 @@ func Run(group *sync.WaitGroup) {
 		bot.Reply(c.Message, msg, &tb.SendOptions{
 			ParseMode: "HTML",
 		})
+
+		commandLogs("delete", c.Sender.ID)
 	})
 
 	bot.Start()
@@ -118,4 +135,8 @@ func getProductSelector(productId int) *tb.ReplyMarkup {
 		selector.Row(btnGraph, btnDelete),
 	)
 	return selector
+}
+
+func commandLogs(command string, userId int) {
+	log.Printf("command: %s, userId: %d", command, userId)
 }

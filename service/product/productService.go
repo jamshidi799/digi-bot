@@ -89,13 +89,25 @@ func commitPriceChange(price int, productID int) {
 	db.DB.Create(&model.History{Price: price, ProductID: productID, Date: time.Now()})
 }
 
-func GetGraphPicName(productId int) string {
+func GetGraphPicName(productId string) (string, error) {
+	pid, _ := strconv.Atoi(productId)
 	var prices []model.History
 	db.DB.
 		Model(&model.History{}).
 		Joins("JOIN products product on product.id = histories.product_id").
-		Where("product.id = ?", productId).
+		Where("product.id = ?", pid).
 		Find(&prices)
 
-	return graph.LinearRegreasion(prices)
+	if len(prices) < 3 {
+		return "", errors.New("تعداد قیمت ثبت‌شده کمتر از ۳ هست")
+	}
+
+	imagePath, err := graph.LinearRegreasion(prices)
+
+	if err != nil {
+		log.Println(err)
+		return "", errors.New("خطا در ساخت تصویر")
+	}
+
+	return imagePath, nil
 }
