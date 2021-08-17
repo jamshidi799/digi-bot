@@ -49,7 +49,7 @@ func LinearRegreasion(histories []model.History) (string, error) {
 		chart.Legend(&graph),
 	}
 
-	filename := fmt.Sprintf("images/%d.png", rand.Int())
+	filename := fmt.Sprintf("%d.png", rand.Int())
 	f, _ := os.Create(filename)
 	defer f.Close()
 	err := graph.Render(chart.PNG, f)
