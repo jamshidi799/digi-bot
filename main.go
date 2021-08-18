@@ -19,8 +19,10 @@ func main() {
 	go bot.Run(&group)
 	group.Wait()
 	log.Println("bot started")
-	group.Add(1)
 
+	//go crawler.BatchCrawlScheduler()
+	go crawler.StartBatchCrawl()
+	group.Add(1)
 	for {
 		Scheduler()
 		time.Sleep(time.Hour * 2)

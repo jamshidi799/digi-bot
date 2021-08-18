@@ -2,7 +2,6 @@ package db
 
 import (
 	"digi-bot/model"
-	"log"
 )
 
 func GetAllProduct() []model.Product {
@@ -20,8 +19,6 @@ func GetAllProductByUserId(userId int) []string {
 		Joins("JOIN products product on product.id = pivots.product_id").
 		Where("pivots.user_id = ?", userId).
 		Find(&products)
-
-	log.Println()
 
 	return products
 }
