@@ -49,7 +49,7 @@ func crawlCategory(category string) {
 
 		addProductCount += len(batch)
 
-		if pageNumber == data.Pages {
+		if pageNumber >= data.Pages {
 			totalProduct = data.FoundItems
 			break
 		}
@@ -67,6 +67,11 @@ func crawlCategory(category string) {
 		}
 		pageNumber++
 		time.Sleep(time.Second * 10)
+
+		if pageNumber > 40 {
+			totalProduct = data.FoundItems
+			break
+		}
 	}
 
 	log.Printf("batchCrawler: crawling %s done. added product: %d, all product: %d, request count: %d",
@@ -112,7 +117,7 @@ func sendRequest(category string, pageNumber int) entity.BatchCrawlResult {
 	url := fmt.Sprintf("https://www.digikala.com/ajax/search/%s/?has_selling_stock=1&pageno=%d&sortby=4", category, pageNumber)
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 	defer resp.Body.Close()
 
