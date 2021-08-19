@@ -41,9 +41,10 @@ func crawlCategory(category string) {
 	for {
 		data := sendRequest(category, pageNumber)
 		batch := data.ToBatchBulkHistory()
-		if len(batch) > 0 {
+		if len(batch) == 0 {
 			db.DB.Create(&batch)
 			log.Println("batch len is zero")
+			totalProduct = data.FoundItems
 			break
 		}
 
@@ -54,14 +55,6 @@ func crawlCategory(category string) {
 			break
 		}
 
-		if len(data.Products) == 0 {
-			log.Println(data)
-		}
-
-		//if len(data.Products) > 0 && data.Products[len(data.Products)-1].Price == 0 {
-		//	totalProduct = data.FoundItems
-		//	break
-		//}
 		if pageNumber%20 == 0 {
 			log.Printf("batchCrawler: crawling %s is on page %d/%d", category, pageNumber, data.Pages)
 		}
