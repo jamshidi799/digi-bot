@@ -7,6 +7,7 @@ import (
 	"digi-bot/messageCreator"
 	"digi-bot/model"
 	productService "digi-bot/service/product"
+	userService "digi-bot/service/user"
 	"log"
 	"sync"
 	"time"
@@ -45,16 +46,11 @@ func Scheduler() {
 			continue
 		}
 
-		if message, isChanged := changeDetector(newProduct, product.ToDto()); isChanged {
+		if message, isChanged, changeLevel := changeDetector(newProduct, product.ToDto()); isChanged {
 			log.Printf("old price: %d, new price: %d",
 				product.Price,
 				newProduct.Price)
-
-			usersId := db.GetAllUsersIdByProductId(product.ID)
-
-			log.Printf("user affected: %d", len(usersId))
-
-			bot.SendUpdateForUsers(usersId, product.ID, message)
+			userService.SendProductUpdateToUsers(product.ID, message, changeLevel)
 			productService.UpdateProduct(product, newProduct)
 			updateCount++
 		}
@@ -68,17 +64,19 @@ func Scheduler() {
 
 }
 
-func changeDetector(newProduct model.ProductDto, oldProduct model.ProductDto) (message string, isChanged bool) {
+func changeDetector(newProduct model.ProductDto, oldProduct model.ProductDto) (message string, isChanged bool, changeLevel int) {
 	if newProduct.Price == oldProduct.Price {
-		return "", false
+		return "", false, 0
 	}
 
 	if newProduct.Price == 0 {
-		if oldProduct.Price == 0 {
-			return "", false
-		}
-		return messageCreator.CreateNotAvailableMsg(newProduct), true
+		return messageCreator.CreateNotAvailableMsg(newProduct), true, 1
 	}
 
-	return messageCreator.CreateNormalPriceChangeMsg(newProduct, newProduct.Price, oldProduct.Price), true
+	changeLevel = 1
+	if newProduct.Status == 2 {
+		changeLevel = 2
+	}
+
+	return messageCreator.CreateNormalPriceChangeMsg(newProduct, newProduct.Price, oldProduct.Price), true, changeLevel
 }

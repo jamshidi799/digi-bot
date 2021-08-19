@@ -32,10 +32,23 @@ func Crawl(url string) (model.ProductDto, error) {
 		oldPrice := e.ChildText(".c-product__seller-price-prev.js-rrp-price")
 		product.OldPrice = messageCreator.FixNumber(oldPrice)
 
+		product.Status = 1
+		if product.Price == 0 {
+			product.Status = 0
+		}
+
 		//fmt.Printf("%s %s\n", price, oldPrice)
 
 		desc1 := e.ChildText(`div[class="c-product__headline--gallery "]`)
 		product.Desc1 = messageCreator.CleaningString(desc1)
+
+		if desc1 == "" {
+			seconds := e.ChildAttr(`.c-product-gallery__timer.js-counter`, "data-countdownseconds")
+			if seconds != "" {
+				product.Desc1 = messageCreator.CreateAmazingOfferText(seconds)
+				product.Status = 2
+			}
+		}
 
 		desc2 := e.ChildText(".c-product__user-suggestion-line")
 		desc2 = messageCreator.CleaningString(desc2)

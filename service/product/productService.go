@@ -33,7 +33,7 @@ func AddProductToDB(senderId int, url string) (model.ProductDto, int, error) {
 		db.DB.Create(&productModel)
 	}
 
-	pivot := model.Pivot{UserID: senderId, ProductID: productModel.ID}
+	pivot := model.Pivot{UserID: senderId, ProductID: productModel.ID, NotificationSetting: 1}
 	db.DB.Create(&pivot)
 
 	log.Printf("new product added: %s\n", product.Name)
@@ -42,6 +42,7 @@ func AddProductToDB(senderId int, url string) (model.ProductDto, int, error) {
 
 func UpdateProduct(product model.Product, newProduct model.ProductDto) {
 	product.Price = newProduct.Price
+	product.Status = newProduct.Status
 	db.DB.Save(&product)
 
 	commitPriceChange(newProduct.Price, product.ID)

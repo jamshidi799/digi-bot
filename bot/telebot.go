@@ -4,6 +4,7 @@ import (
 	"digi-bot/db"
 	"digi-bot/messageCreator"
 	"digi-bot/model"
+	"digi-bot/service/pivot"
 	productService "digi-bot/service/product"
 	"github.com/joho/godotenv"
 	"log"
@@ -42,6 +43,9 @@ func Run(group *sync.WaitGroup) {
 	selector := &tb.ReplyMarkup{}
 	btnGraph := selector.Data("نمودار قیمت", "graph")
 	btnDelete := selector.Data("حذف", "delete")
+	btnSetting := selector.Data("تنظیمات", "setting")
+	btnOne := selector.Data("1", "one")
+	btnTwo := selector.Data("2", "two")
 
 	bot.Handle("/start", func(m *tb.Message) {
 		userModel := model.ToUser(m.Sender)
@@ -119,6 +123,36 @@ func Run(group *sync.WaitGroup) {
 		commandLogs("delete", c.Sender.ID)
 	})
 
+	bot.Handle(&btnSetting, func(c *tb.Callback) {
+		msg := messageCreator.CreateChangeSettingGuide()
+		productId := c.Data
+		bot.Reply(c.Message, msg, &tb.SendOptions{
+			ParseMode:   "HTML",
+			ReplyMarkup: getProductSettingSelector(productId),
+		})
+
+		commandLogs("setting", c.Sender.ID)
+	})
+
+	bot.Handle(&btnOne, func(c *tb.Callback) {
+		productId := c.Data
+		userId := c.Sender.ID
+		msg := pivot.UpdateStatus(1, productId, userId)
+		bot.Reply(c.Message, msg, &tb.SendOptions{
+			ParseMode: "HTML",
+		})
+	})
+
+	bot.Handle(&btnTwo, func(c *tb.Callback) {
+		productId := c.Data
+		userId := c.Sender.ID
+		msg := pivot.UpdateStatus(2, productId, userId)
+
+		bot.Reply(c.Message, msg, &tb.SendOptions{
+			ParseMode: "HTML",
+		})
+	})
+
 	bot.Start()
 
 }
@@ -134,12 +168,27 @@ func SendUpdateForUsers(usersId []int, productId int, message string) {
 }
 
 func getProductSelector(productId int) *tb.ReplyMarkup {
+	productIdStr := strconv.Itoa(productId)
 	selector := &tb.ReplyMarkup{}
-	btnGraph := selector.Data("نمودار قیمت", "graph", strconv.Itoa(productId))
-	btnDelete := selector.Data("حذف", "delete", strconv.Itoa(productId))
+	btnGraph := selector.Data("نمودار قیمت", "graph", productIdStr)
+	btnDelete := selector.Data("حذف", "delete", productIdStr)
+	btnSetting := selector.Data("تنظیمات", "setting", productIdStr)
 
 	selector.Inline(
 		selector.Row(btnGraph, btnDelete),
+		selector.Row(btnSetting),
+	)
+	return selector
+}
+
+func getProductSettingSelector(productId string) *tb.ReplyMarkup {
+	selector := &tb.ReplyMarkup{}
+	btnOne := selector.Data("1", "one", productId)
+	btnTwo := selector.Data("2", "two", productId)
+	//btnThree := selector.Data("3", "three", productId)
+
+	selector.Inline(
+		selector.Row(btnOne, btnTwo),
 	)
 	return selector
 }

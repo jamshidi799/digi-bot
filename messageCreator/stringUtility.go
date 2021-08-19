@@ -3,6 +3,7 @@ package messageCreator
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 )
 
 type String string
@@ -64,4 +65,12 @@ func CleaningStringWithDelimiter(str string, delimiter string) string {
 	str = re.ReplaceAllString(str, delimiter)
 	re = regexp.MustCompile(` {2,}`)
 	return re.ReplaceAllString(str, delimiter)
+}
+
+func CreateAmazingOfferText(remainedTime string) string {
+	seconds, _ := strconv.Atoi(remainedTime)
+	hours := seconds / 3600
+	minutes := (seconds - hours*3600) / 60
+	message := fmt.Sprintf("شگفت‌انگیز %d ساعت و %d دقیقه", hours, minutes)
+	return message
 }
