@@ -42,12 +42,12 @@ func crawlCategory(category string) {
 		data := sendRequest(category, pageNumber)
 		batch := data.ToBatchBulkHistory()
 		if len(batch) == 0 {
-			db.DB.Create(&batch)
 			log.Println("batch len is zero")
 			totalProduct = data.FoundItems
 			break
 		}
 
+		db.DB.Create(&batch)
 		addProductCount += len(batch)
 
 		if pageNumber >= data.Pages {
