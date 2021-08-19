@@ -54,10 +54,14 @@ func crawlCategory(category string) {
 			break
 		}
 
-		if data.Products[len(data.Products)-1].Price == 0 {
-			totalProduct = data.FoundItems
-			break
+		if len(data.Products) == 0 {
+			log.Println(data)
 		}
+
+		//if len(data.Products) > 0 && data.Products[len(data.Products)-1].Price == 0 {
+		//	totalProduct = data.FoundItems
+		//	break
+		//}
 		if pageNumber%20 == 0 {
 			log.Printf("batchCrawler: crawling %s is on page %d/%d", category, pageNumber, data.Pages)
 		}

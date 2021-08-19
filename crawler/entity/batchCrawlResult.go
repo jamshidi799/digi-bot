@@ -33,9 +33,9 @@ func (product Product) ToBulkHistoryModel() model.BulkHistory {
 func (data BatchCrawlResult) ToBatchBulkHistory() []model.BulkHistory {
 	var bulk []model.BulkHistory
 	for _, product := range data.Products {
-		if product.Price == 0 {
-			return bulk
-		}
+		//if product.Price == 0 {
+		//	return bulk
+		//}
 		bulk = append(bulk, product.ToBulkHistoryModel())
 	}
 	return bulk
