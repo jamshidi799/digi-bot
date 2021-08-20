@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func ChangeDetector() {
+func ChangeDetectorJob() {
 	for {
 		log.Printf("--------------- Scheduler --------------------\n")
 

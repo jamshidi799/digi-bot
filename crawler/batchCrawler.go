@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/gocolly/colly"
 	"github.com/m7shapan/njson"
-	"github.com/mileusna/crontab"
 	"io"
 	"io/ioutil"
 	"log"
@@ -14,16 +13,6 @@ import (
 	"regexp"
 	"time"
 )
-
-func BatchCrawlScheduler() {
-	cTab := crontab.New()
-
-	err := cTab.AddJob("0 0 * * *", StartBatchCrawl) // on 1st day of month
-	if err != nil {
-		log.Println(err)
-		return
-	}
-}
 
 func StartBatchCrawl() {
 	categories := getCategories()

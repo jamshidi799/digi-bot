@@ -38,6 +38,7 @@ func Run(group *sync.WaitGroup) {
 	}
 
 	Bot = bot
+	log.Println("bot started")
 	group.Done()
 
 	selector := &tb.ReplyMarkup{}
