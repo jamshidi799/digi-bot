@@ -1,7 +1,7 @@
 package user
 
 import (
-	"digi-bot/bot"
+	"digi-bot/bot/telegramBot"
 	"digi-bot/db"
 	"log"
 )
@@ -11,5 +11,5 @@ func SendProductUpdateToUsers(productId int, message string, changeLevel int) {
 
 	log.Printf("user affected: %d", len(usersId))
 
-	bot.SendUpdateForUsers(usersId, productId, message)
+	telegramBot.GetBot().SendUpdateForUsers(usersId, productId, message)
 }
