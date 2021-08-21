@@ -1,7 +1,7 @@
 package job
 
 import (
-	"digi-bot/crawler"
+	"digi-bot/crawler/digikalaCrawler"
 	"digi-bot/db"
 	"digi-bot/messageCreator"
 	"digi-bot/model"
@@ -29,7 +29,7 @@ func refresh() int {
 	products := db.GetAllProduct()
 
 	for _, product := range products {
-		newProduct, err := crawler.Crawl(product.Url)
+		newProduct, err := crawler.DigikalaCrawler{}.Crawl(product.Url)
 		if err != nil {
 			log.Println(newProduct)
 			continue

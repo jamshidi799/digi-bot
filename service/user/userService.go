@@ -11,5 +11,5 @@ func SendProductUpdateToUsers(productId int, message string, changeLevel int) {
 
 	log.Printf("user affected: %d", len(usersId))
 
-	telegramBot.GetBot().SendUpdateForUsers(usersId, productId, message)
+	bot.GetTelegramBot().SendUpdateForUsers(usersId, productId, message)
 }

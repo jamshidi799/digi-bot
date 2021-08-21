@@ -1,4 +1,4 @@
-package telegramBot
+package bot
 
 import (
 	"digi-bot/db"
@@ -27,11 +27,15 @@ type TelegramBot struct {
 	btnTwo     tb.Btn
 }
 
-func GetBot() TelegramBot {
+func GetTelegramBot() TelegramBot {
 	return telegramBot
 }
 
-func (tlBot TelegramBot) Init(group *sync.WaitGroup) {
+func InitTelegramBot(group *sync.WaitGroup) {
+	if telegramBot.bot != nil {
+		log.Println("telebot: can't reinitialize bot")
+	}
+
 	err := godotenv.Load(".env")
 
 	if err != nil {
@@ -39,7 +43,8 @@ func (tlBot TelegramBot) Init(group *sync.WaitGroup) {
 	}
 
 	token := os.Getenv("BOT_TOKEN")
-	tlBot.bot, err = tb.NewBot(tb.Settings{
+
+	telegramBot.bot, err = tb.NewBot(tb.Settings{
 		Token:  token,
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 	})
@@ -49,18 +54,17 @@ func (tlBot TelegramBot) Init(group *sync.WaitGroup) {
 	}
 
 	selector := &tb.ReplyMarkup{}
-	tlBot.btnGraph = selector.Data("نمودار قیمت", "graph")
-	tlBot.btnDelete = selector.Data("حذف", "delete")
-	tlBot.btnSetting = selector.Data("تنظیمات", "setting")
-	tlBot.btnOne = selector.Data("1", "one")
-	tlBot.btnTwo = selector.Data("2", "two")
+	telegramBot.btnGraph = selector.Data("نمودار قیمت", "graph")
+	telegramBot.btnDelete = selector.Data("حذف", "delete")
+	telegramBot.btnSetting = selector.Data("تنظیمات", "setting")
+	telegramBot.btnOne = selector.Data("1", "one")
+	telegramBot.btnTwo = selector.Data("2", "two")
 
-	tlBot.callHandlers()
-	telegramBot = tlBot
+	telegramBot.callHandlers()
 
 	group.Done()
 	log.Println("bot started")
-	tlBot.bot.Start()
+	telegramBot.bot.Start()
 }
 
 func (tlBot TelegramBot) callHandlers() {
