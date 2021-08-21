@@ -19,12 +19,7 @@ import (
 var telegramBot TelegramBot
 
 type TelegramBot struct {
-	bot        *tb.Bot
-	btnGraph   tb.Btn
-	btnDelete  tb.Btn
-	btnSetting tb.Btn
-	btnOne     tb.Btn
-	btnTwo     tb.Btn
+	bot *tb.Bot
 }
 
 func GetTelegramBot() TelegramBot {
@@ -52,13 +47,6 @@ func InitTelegramBot(group *sync.WaitGroup) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	selector := &tb.ReplyMarkup{}
-	telegramBot.btnGraph = selector.Data("نمودار قیمت", "graph")
-	telegramBot.btnDelete = selector.Data("حذف", "delete")
-	telegramBot.btnSetting = selector.Data("تنظیمات", "setting")
-	telegramBot.btnOne = selector.Data("1", "one")
-	telegramBot.btnTwo = selector.Data("2", "two")
 
 	telegramBot.callHandlers()
 
@@ -149,7 +137,10 @@ func (tlBot TelegramBot) handleList() {
 
 func (tlBot TelegramBot) handleDelete() {
 	bot := tlBot.bot
-	bot.Handle(&tlBot.btnDelete, func(c *tb.Callback) {
+	selector := &tb.ReplyMarkup{}
+	btnDelete := selector.Data("حذف", "delete")
+
+	bot.Handle(&btnDelete, func(c *tb.Callback) {
 		msg := productService.DeleteProduct(c.Data, c.Sender.ID)
 		bot.Reply(c.Message, msg, &tb.SendOptions{
 			ParseMode: "HTML",
@@ -161,7 +152,11 @@ func (tlBot TelegramBot) handleDelete() {
 
 func (tlBot TelegramBot) handleGraph() {
 	bot := tlBot.bot
-	bot.Handle(&tlBot.btnGraph, func(c *tb.Callback) {
+
+	selector := &tb.ReplyMarkup{}
+	btnGraph := selector.Data("نمودار قیمت", "graph")
+
+	bot.Handle(&btnGraph, func(c *tb.Callback) {
 		imagePath, err := productService.GetGraphPicName(c.Data)
 		if err != nil {
 			bot.Reply(c.Message, err)
@@ -176,7 +171,13 @@ func (tlBot TelegramBot) handleGraph() {
 
 func (tlBot TelegramBot) handleSetting() {
 	bot := tlBot.bot
-	bot.Handle(&tlBot.btnSetting, func(c *tb.Callback) {
+
+	selector := &tb.ReplyMarkup{}
+	btnSetting := selector.Data("تنظیمات", "setting")
+	btnOne := selector.Data("1", "one")
+	btnTwo := selector.Data("2", "two")
+
+	bot.Handle(&btnSetting, func(c *tb.Callback) {
 		msg := messageCreator.CreateChangeSettingGuide()
 		productId := c.Data
 		bot.Reply(c.Message, msg, &tb.SendOptions{
@@ -187,7 +188,7 @@ func (tlBot TelegramBot) handleSetting() {
 		commandLogs("setting", c.Sender.ID)
 	})
 
-	bot.Handle(&tlBot.btnOne, func(c *tb.Callback) {
+	bot.Handle(&btnOne, func(c *tb.Callback) {
 		productId := c.Data
 		userId := c.Sender.ID
 		msg := pivot.UpdateStatus(1, productId, userId)
@@ -196,7 +197,7 @@ func (tlBot TelegramBot) handleSetting() {
 		})
 	})
 
-	bot.Handle(&tlBot.btnTwo, func(c *tb.Callback) {
+	bot.Handle(&btnTwo, func(c *tb.Callback) {
 		productId := c.Data
 		userId := c.Sender.ID
 		msg := pivot.UpdateStatus(2, productId, userId)
