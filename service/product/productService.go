@@ -1,7 +1,7 @@
 package product
 
 import (
-	"digi-bot/crawler"
+	crawler "digi-bot/crawler/digikalaCrawler"
 	"digi-bot/db"
 	"digi-bot/graph"
 	"digi-bot/messageCreator"
@@ -19,7 +19,7 @@ func AddProductToDB(senderId int, url string) (model.ProductDto, int, error) {
 		return model.ProductDto{}, 0, errors.New("ادرس نامعتبر است")
 	}
 
-	product, err := crawler.Crawl(url)
+	product, err := crawler.DigikalaCrawler{}.Crawl(url)
 	if err != nil {
 		return model.ProductDto{}, 0, err
 	}

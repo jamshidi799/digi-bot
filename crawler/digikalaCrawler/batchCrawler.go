@@ -1,7 +1,7 @@
 package crawler
 
 import (
-	"digi-bot/crawler/entity"
+	"digi-bot/crawler/digikalaCrawler/entity"
 	"digi-bot/db"
 	"fmt"
 	"github.com/gocolly/colly"
@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func StartBatchCrawl() {
+func (dkCrawler DigikalaCrawler) BatchCrawl() {
 	categories := getCategories()
 	for _, category := range categories {
 		crawlCategory(category)
