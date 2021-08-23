@@ -49,11 +49,6 @@ func crawlCategory(category string) {
 		}
 		pageNumber++
 		time.Sleep(time.Second * 10)
-
-		if pageNumber > 40 {
-			totalProduct = data.FoundItems
-			break
-		}
 	}
 
 	log.Printf("batchCrawler: crawling %s done. added product: %d, all product: %d, request count: %d",

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	db.Init()
-	//go job.BatchCrawlerJob()
+	go job.BatchCrawlerJob()
 
 	var group sync.WaitGroup
 	group.Add(1)
