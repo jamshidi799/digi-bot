@@ -96,7 +96,7 @@ func GetGraphPicName(productId string) (string, error) {
 	db.DB.
 		Model(&model.History{}).
 		Joins("JOIN products product on product.id = histories.product_id").
-		Where("product.id = ?", pid).
+		Where("product.id = ? AND histories.price > 0", pid).
 		Find(&prices)
 
 	if len(prices) < 3 {
