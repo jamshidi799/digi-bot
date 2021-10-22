@@ -7,6 +7,7 @@ import (
 type Product struct {
 	gorm.Model
 	ID        int
+	RealID    int
 	Url       string
 	Name      string
 	Price     int

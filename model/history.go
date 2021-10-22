@@ -10,3 +10,8 @@ type History struct {
 	Price     int
 	Date      time.Time
 }
+
+type GraphData struct {
+	Price int
+	Date  time.Time
+}

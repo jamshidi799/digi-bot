@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func LinearRegreasion(histories []model.History) (string, error) {
+func LinearRegreasion(histories []model.GraphData) (string, error) {
 	var xvalues []time.Time
 	var yvalues []float64
 	for _, history := range histories {
@@ -29,7 +29,6 @@ func LinearRegreasion(histories []model.History) (string, error) {
 				Bottom: 10,
 			},
 		},
-		Name:    "A test series",
 		XValues: xvalues,
 		YValues: yvalues,
 	}
@@ -57,16 +56,16 @@ func LinearRegreasion(histories []model.History) (string, error) {
 	return filename, err
 }
 
-func StockAnalysis(histories []model.History) string {
+func StockAnalysis(histories []model.GraphData) (string, error) {
 	var xvalues []time.Time
 	var yvalues []float64
+
 	for _, history := range histories {
 		xvalues = append(xvalues, history.Date)
 		yvalues = append(yvalues, float64(history.Price))
 	}
 
 	priceSeries := chart.TimeSeries{
-		Name: "SPY",
 		Style: chart.Style{
 			StrokeColor: chart.GetDefaultColor(0),
 		},
@@ -75,7 +74,6 @@ func StockAnalysis(histories []model.History) string {
 	}
 
 	smaSeries := chart.SMASeries{
-		Name: "SPY - SMA",
 		Style: chart.Style{
 			StrokeColor:     drawing.ColorRed,
 			StrokeDashArray: []float64{5.0, 5.0},
@@ -84,10 +82,9 @@ func StockAnalysis(histories []model.History) string {
 	}
 
 	bbSeries := &chart.BollingerBandsSeries{
-		Name: "SPY - Bol. Bands",
 		Style: chart.Style{
-			StrokeColor: drawing.ColorFromHex("efefef"),
-			FillColor:   drawing.ColorFromHex("efefef").WithAlpha(64),
+			StrokeColor: drawing.ColorFromHex("a1a8d6"),
+			FillColor:   drawing.ColorFromHex("a1a8d6").WithAlpha(64),
 		},
 		InnerSeries: priceSeries,
 	}
@@ -96,12 +93,6 @@ func StockAnalysis(histories []model.History) string {
 		XAxis: chart.XAxis{
 			TickPosition: chart.TickPositionBetweenTicks,
 		},
-		YAxis: chart.YAxis{
-			Range: &chart.ContinuousRange{
-				Max: 220.0,
-				Min: 180.0,
-			},
-		},
 		Series: []chart.Series{
 			bbSeries,
 			priceSeries,
@@ -109,8 +100,10 @@ func StockAnalysis(histories []model.History) string {
 		},
 	}
 
-	f, _ := os.Create("STOCK.png")
+	filename := fmt.Sprintf("%d.png", rand.Int())
+	f, _ := os.Create(filename)
 	defer f.Close()
-	graph.Render(chart.PNG, f)
-	return ""
+	err := graph.Render(chart.PNG, f)
+
+	return filename, err
 }
