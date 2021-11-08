@@ -6,8 +6,10 @@ import (
 	"digi-bot/model"
 	"digi-bot/service/pivot"
 	productService "digi-bot/service/product"
+	"fmt"
 	"github.com/joho/godotenv"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"sync"
@@ -228,13 +230,23 @@ func (tlBot TelegramBot) handleSetting() {
 	})
 }
 
-func (tlBot TelegramBot) SendUpdateForUsers(usersId []int, productId int, message string) {
+func (tlBot TelegramBot) SendUpdateForUsers(usersId []int, productId int, message string, available bool) {
+	rand.Seed(time.Now().UnixNano())
 	for _, userId := range usersId {
 		user := db.GetUserById(userId)
-		_, _ = tlBot.bot.Send(user.ToTbUser(), message, &tb.SendOptions{
+		msg, _ := tlBot.bot.Send(user.ToTbUser(), message, &tb.SendOptions{
 			ParseMode:   "HTML",
 			ReplyMarkup: getProductSelector(productId),
 		})
+		if !available {
+			random := rand.Intn(5)
+			if random == 0 {
+				tlBot.bot.Reply(msg, "💩")
+			} else {
+				gif := &tb.Animation{File: tb.FromDisk(fmt.Sprintf("assets/gif%d.mp4", random))}
+				tlBot.bot.Reply(msg, gif)
+			}
+		}
 	}
 }
 

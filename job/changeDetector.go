@@ -39,13 +39,14 @@ func refresh() int {
 			log.Printf("old price: %d, new price: %d",
 				product.Price,
 				newProduct.Price)
-			userService.SendProductUpdateToUsers(product.ID, message, changeLevel)
+			available := isChanged && newProduct.Status != 0
+			userService.SendProductUpdateToUsers(product.ID, message, changeLevel, available)
 			productService.UpdateProduct(product, newProduct)
 			updateCount++
 		}
 
 		//break
-		time.Sleep(time.Second * 3)
+		time.Sleep(time.Second * 1)
 	}
 	return updateCount
 }

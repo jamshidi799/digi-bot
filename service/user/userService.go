@@ -6,10 +6,10 @@ import (
 	"log"
 )
 
-func SendProductUpdateToUsers(productId int, message string, changeLevel int) {
+func SendProductUpdateToUsers(productId int, message string, changeLevel int, available bool) {
 	usersId := db.GetAllUsersIdByProductId(productId, changeLevel)
 
 	log.Printf("user affected: %d", len(usersId))
 
-	bot.GetTelegramBot().SendUpdateForUsers(usersId, productId, message)
+	bot.GetTelegramBot().SendUpdateForUsers(usersId, productId, message, available)
 }
