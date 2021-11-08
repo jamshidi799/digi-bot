@@ -244,7 +244,7 @@ func getProductSelector(productId int) *tb.ReplyMarkup {
 	btnGraph := selector.Data("نمودار قیمت", "graph", productIdStr)
 	btnDelete := selector.Data("حذف", "delete", productIdStr)
 	btnSetting := selector.Data("تنظیمات", "setting", productIdStr)
-	btnHistory := selector.Data("نمودار بنلد‌مدت", "history", productIdStr)
+	btnHistory := selector.Data("نمودار بلند‌مدت", "history", productIdStr)
 
 	selector.Inline(
 		selector.Row(btnGraph, btnDelete),
