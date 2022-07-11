@@ -1,4 +1,4 @@
-package product
+package service
 
 import (
 	crawler "digi-bot/crawler/digikalaCrawler"

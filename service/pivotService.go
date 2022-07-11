@@ -1,4 +1,4 @@
-package pivot
+package service
 
 import (
 	"digi-bot/db"

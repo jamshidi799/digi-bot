@@ -4,8 +4,7 @@ import (
 	"digi-bot/db"
 	"digi-bot/messageCreator"
 	"digi-bot/model"
-	"digi-bot/service/pivot"
-	productService "digi-bot/service/product"
+	"digi-bot/service"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
@@ -85,7 +84,7 @@ func (tlBot TelegramBot) handleStart() {
 func (tlBot TelegramBot) handleDeleteAll() {
 	bot := tlBot.bot
 	bot.Handle("/deleteall", func(m *tb.Message) {
-		productService.DeleteAllUserProduct(m.Sender.ID)
+		service.DeleteAllUserProduct(m.Sender.ID)
 		bot.Reply(m, "لیست کالا با موفقیت پاک شد")
 
 		commandLogs("delete all", m.Sender.ID)
@@ -97,7 +96,7 @@ func (tlBot TelegramBot) handleAdd() {
 	bot.Handle("/add", func(m *tb.Message) {
 		bot.Reply(m, "آدرس (url) کالا را وارد کنید")
 		bot.Handle(tb.OnText, func(m *tb.Message) {
-			product, productId, err := productService.AddProductToDB(m.Sender.ID, m.Text)
+			product, productId, err := service.AddProductToDB(m.Sender.ID, m.Text)
 			if err != nil {
 				_, _ = bot.Send(m.Sender, err.Error())
 			} else {
@@ -130,7 +129,7 @@ func (tlBot TelegramBot) handleHelp() {
 func (tlBot TelegramBot) handleList() {
 	bot := tlBot.bot
 	bot.Handle("/list", func(m *tb.Message) {
-		bot.Send(m.Sender, productService.GetProductList(m.Sender.ID), &tb.SendOptions{
+		bot.Send(m.Sender, service.GetProductList(m.Sender.ID), &tb.SendOptions{
 			ParseMode: "HTML",
 		})
 
@@ -144,7 +143,7 @@ func (tlBot TelegramBot) handleDelete() {
 	btnDelete := selector.Data("حذف", "delete")
 
 	bot.Handle(&btnDelete, func(c *tb.Callback) {
-		msg := productService.DeleteProduct(c.Data, c.Sender.ID)
+		msg := service.DeleteProduct(c.Data, c.Sender.ID)
 		bot.Reply(c.Message, msg, &tb.SendOptions{
 			ParseMode: "HTML",
 		})
@@ -160,7 +159,7 @@ func (tlBot TelegramBot) handleGraph() {
 	btnGraph := selector.Data("نمودار قیمت", "graph")
 
 	bot.Handle(&btnGraph, func(c *tb.Callback) {
-		imagePath, err := productService.GetGraphPicName(c.Data)
+		imagePath, err := service.GetGraphPicName(c.Data)
 		if err != nil {
 			bot.Reply(c.Message, err)
 		} else {
@@ -179,7 +178,7 @@ func (tlBot TelegramBot) handleHistory() {
 	btnHistory := selector.Data("نمودار بلند‌مدت", "history")
 
 	bot.Handle(&btnHistory, func(c *tb.Callback) {
-		imagePath, err := productService.GetHistoryPicName(c.Data)
+		imagePath, err := service.GetHistoryPicName(c.Data)
 		if err != nil {
 			bot.Reply(c.Message, err)
 		} else {
@@ -213,7 +212,7 @@ func (tlBot TelegramBot) handleSetting() {
 	bot.Handle(&btnOne, func(c *tb.Callback) {
 		productId := c.Data
 		userId := c.Sender.ID
-		msg := pivot.UpdateStatus(1, productId, userId)
+		msg := service.UpdateStatus(1, productId, userId)
 		bot.Reply(c.Message, msg, &tb.SendOptions{
 			ParseMode: "HTML",
 		})
@@ -222,7 +221,7 @@ func (tlBot TelegramBot) handleSetting() {
 	bot.Handle(&btnTwo, func(c *tb.Callback) {
 		productId := c.Data
 		userId := c.Sender.ID
-		msg := pivot.UpdateStatus(2, productId, userId)
+		msg := service.UpdateStatus(2, productId, userId)
 
 		bot.Reply(c.Message, msg, &tb.SendOptions{
 			ParseMode: "HTML",

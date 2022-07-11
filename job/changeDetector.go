@@ -5,8 +5,7 @@ import (
 	"digi-bot/db"
 	"digi-bot/messageCreator"
 	"digi-bot/model"
-	productService "digi-bot/service/product"
-	userService "digi-bot/service/user"
+	"digi-bot/service"
 	"log"
 	"time"
 )
@@ -40,8 +39,8 @@ func refresh() int {
 				product.Price,
 				newProduct.Price)
 			available := isChanged && newProduct.Status != 0
-			userService.SendProductUpdateToUsers(product.ID, message, changeLevel, available)
-			productService.UpdateProduct(product, newProduct)
+			service.SendProductUpdateToUsers(product.ID, message, changeLevel, available)
+			service.UpdateProduct(product, newProduct)
 			updateCount++
 		}
 
