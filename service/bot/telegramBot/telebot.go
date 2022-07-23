@@ -1,10 +1,9 @@
 package bot
 
 import (
-	"digi-bot/db"
-	"digi-bot/messageCreator"
-	"digi-bot/model"
+	"digi-bot/model/db"
 	"digi-bot/service"
+	crawler "digi-bot/service/crawler/digikalaCrawler"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
@@ -70,10 +69,9 @@ func (tlBot TelegramBot) callHandlers() {
 
 func (tlBot TelegramBot) handleStart() {
 	tlBot.bot.Handle("/start", func(m *tb.Message) {
-		userModel := model.ToUser(m.Sender)
-		db.DB.Create(&userModel)
+		db.SaveUser(m.Sender)
 
-		_, _ = tlBot.bot.Send(m.Sender, messageCreator.CreateHelpMsg(), &tb.SendOptions{
+		_, _ = tlBot.bot.Send(m.Sender, service.CreateHelpMsg(), &tb.SendOptions{
 			ParseMode: "HTML",
 		})
 
@@ -84,7 +82,7 @@ func (tlBot TelegramBot) handleStart() {
 func (tlBot TelegramBot) handleDeleteAll() {
 	bot := tlBot.bot
 	bot.Handle("/deleteall", func(m *tb.Message) {
-		service.DeleteAllUserProduct(m.Sender.ID)
+		db.DeleteAllUserProduct(m.Sender.ID)
 		bot.Reply(m, "لیست کالا با موفقیت پاک شد")
 
 		commandLogs("delete all", m.Sender.ID)
@@ -96,17 +94,18 @@ func (tlBot TelegramBot) handleAdd() {
 	bot.Handle("/add", func(m *tb.Message) {
 		bot.Reply(m, "آدرس (url) کالا را وارد کنید")
 		bot.Handle(tb.OnText, func(m *tb.Message) {
-			product, productId, err := service.AddProductToDB(m.Sender.ID, m.Text)
+			product, err := crawler.DigikalaCrawler{}.Crawl(m.Text)
+			err = db.AddProductToDB(product, m.Sender.ID)
 			if err != nil {
 				_, _ = bot.Send(m.Sender, err.Error())
 			} else {
-				message := messageCreator.CreatePreviewMsg(product)
+				message := service.CreatePreviewMsg(product)
 				_, _ = bot.Send(
 					m.Sender,
 					message,
 					&tb.SendOptions{
 						ParseMode:   "HTML",
-						ReplyMarkup: getProductSelector(productId),
+						ReplyMarkup: getProductSelector(product.Id),
 					})
 			}
 		})
@@ -118,7 +117,7 @@ func (tlBot TelegramBot) handleAdd() {
 func (tlBot TelegramBot) handleHelp() {
 	bot := tlBot.bot
 	bot.Handle("/help", func(m *tb.Message) {
-		bot.Send(m.Sender, messageCreator.CreateHelpMsg(), &tb.SendOptions{
+		bot.Send(m.Sender, service.CreateHelpMsg(), &tb.SendOptions{
 			ParseMode: "HTML",
 		})
 
@@ -129,7 +128,7 @@ func (tlBot TelegramBot) handleHelp() {
 func (tlBot TelegramBot) handleList() {
 	bot := tlBot.bot
 	bot.Handle("/list", func(m *tb.Message) {
-		bot.Send(m.Sender, service.GetProductList(m.Sender.ID), &tb.SendOptions{
+		bot.Send(m.Sender, db.GetProductList(m.Sender.ID), &tb.SendOptions{
 			ParseMode: "HTML",
 		})
 
@@ -143,7 +142,7 @@ func (tlBot TelegramBot) handleDelete() {
 	btnDelete := selector.Data("حذف", "delete")
 
 	bot.Handle(&btnDelete, func(c *tb.Callback) {
-		msg := service.DeleteProduct(c.Data, c.Sender.ID)
+		msg := db.DeleteProduct(c.Data, c.Sender.ID)
 		bot.Reply(c.Message, msg, &tb.SendOptions{
 			ParseMode: "HTML",
 		})
@@ -159,7 +158,7 @@ func (tlBot TelegramBot) handleGraph() {
 	btnGraph := selector.Data("نمودار قیمت", "graph")
 
 	bot.Handle(&btnGraph, func(c *tb.Callback) {
-		imagePath, err := service.GetGraphPicName(c.Data)
+		imagePath, err := db.GetGraphPicName(c.Data)
 		if err != nil {
 			bot.Reply(c.Message, err)
 		} else {
@@ -178,7 +177,7 @@ func (tlBot TelegramBot) handleHistory() {
 	btnHistory := selector.Data("نمودار بلند‌مدت", "history")
 
 	bot.Handle(&btnHistory, func(c *tb.Callback) {
-		imagePath, err := service.GetHistoryPicName(c.Data)
+		imagePath, err := db.GetHistoryPicName(c.Data)
 		if err != nil {
 			bot.Reply(c.Message, err)
 		} else {
@@ -199,7 +198,7 @@ func (tlBot TelegramBot) handleSetting() {
 	btnTwo := selector.Data("2", "two")
 
 	bot.Handle(&btnSetting, func(c *tb.Callback) {
-		msg := messageCreator.CreateChangeSettingGuide()
+		msg := service.CreateChangeSettingGuide()
 		productId := c.Data
 		bot.Reply(c.Message, msg, &tb.SendOptions{
 			ParseMode:   "HTML",
@@ -212,7 +211,7 @@ func (tlBot TelegramBot) handleSetting() {
 	bot.Handle(&btnOne, func(c *tb.Callback) {
 		productId := c.Data
 		userId := c.Sender.ID
-		msg := service.UpdateStatus(1, productId, userId)
+		msg := db.UpdateStatus(1, productId, userId)
 		bot.Reply(c.Message, msg, &tb.SendOptions{
 			ParseMode: "HTML",
 		})
@@ -221,7 +220,7 @@ func (tlBot TelegramBot) handleSetting() {
 	bot.Handle(&btnTwo, func(c *tb.Callback) {
 		productId := c.Data
 		userId := c.Sender.ID
-		msg := service.UpdateStatus(2, productId, userId)
+		msg := db.UpdateStatus(2, productId, userId)
 
 		bot.Reply(c.Message, msg, &tb.SendOptions{
 			ParseMode: "HTML",

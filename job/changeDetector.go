@@ -1,12 +1,11 @@
 package job
 
 import (
-	bot "digi-bot/bot/telegramBot"
-	"digi-bot/crawler/digikalaCrawler"
-	"digi-bot/db"
-	"digi-bot/messageCreator"
 	"digi-bot/model"
+	"digi-bot/model/db"
 	"digi-bot/service"
+	"digi-bot/service/bot/telegramBot"
+	"digi-bot/service/crawler/digikalaCrawler"
 	"log"
 	"time"
 )
@@ -41,7 +40,7 @@ func refresh() int {
 				newProduct.Price)
 			available := isChanged && newProduct.Status != 0
 			bot.GetTelegramBot().SendUpdateForUsers(product.ID, message, available, changeLevel)
-			service.UpdateProduct(product, newProduct)
+			db.UpdateProduct(product, newProduct)
 			updateCount++
 		}
 
@@ -57,7 +56,7 @@ func compare(newProduct model.ProductDto, oldProduct model.ProductDto) (message 
 	}
 
 	if newProduct.Price == 0 {
-		return messageCreator.CreateNotAvailableMsg(newProduct), true, 1
+		return service.CreateNotAvailableMsg(newProduct), true, 1
 	}
 
 	changeLevel = 1
@@ -65,5 +64,5 @@ func compare(newProduct model.ProductDto, oldProduct model.ProductDto) (message 
 		changeLevel = 2
 	}
 
-	return messageCreator.CreateNormalPriceChangeMsg(newProduct, newProduct.Price, oldProduct.Price), true, changeLevel
+	return service.CreateNormalPriceChangeMsg(newProduct, newProduct.Price, oldProduct.Price), true, changeLevel
 }

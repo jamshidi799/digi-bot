@@ -1,7 +1,7 @@
 package job
 
 import (
-	"digi-bot/crawler/digikalaCrawler"
+	"digi-bot/service/crawler/digikalaCrawler"
 	"github.com/mileusna/crontab"
 	"log"
 )

@@ -26,6 +26,7 @@ func (product Product) ToDto() ProductDto {
 }
 
 type ProductDto struct {
+	Id       int
 	Name     string `json:"name"`
 	Url      string
 	Price    int

@@ -1,20 +1,19 @@
-package service
+package db
 
 import (
-	"digi-bot/db"
-	"digi-bot/messageCreator"
+	"digi-bot/service"
 	"log"
 )
 
 func UpdateStatus(status int, productId string, userId int) string {
-	result := db.DB.
+	result := database.
 		Table("pivots").
 		Where("user_id = ? AND product_id = ?", userId, productId).
 		Update("notification_setting", status)
 	if result.Error != nil {
 		log.Println(result.Error)
-		return messageCreator.CreateErrorText()
+		return service.CreateErrorText()
 	}
 
-	return messageCreator.CreateSuccessText()
+	return service.CreateSuccessText()
 }

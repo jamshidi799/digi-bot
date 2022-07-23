@@ -1,8 +1,9 @@
 package main
 
 import (
-	"digi-bot/db"
 	"digi-bot/job"
+	"digi-bot/model/db"
+	"digi-bot/service/bot"
 	"sync"
 )
 
@@ -13,7 +14,7 @@ func main() {
 	var group sync.WaitGroup
 	group.Add(1)
 
-	go job.StartBot(&group)
+	go bot.StartBot(&group)
 
 	group.Wait()
 

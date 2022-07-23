@@ -1,4 +1,4 @@
-package messageCreator
+package utils
 
 import (
 	"fmt"
@@ -7,8 +7,6 @@ import (
 )
 
 type String string
-
-// todo: write test for these functions
 
 func (str String) Bold() String {
 	return String(fmt.Sprintf("<b>%s</b>", str))

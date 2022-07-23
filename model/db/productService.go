@@ -1,63 +1,48 @@
-package service
+package db
 
 import (
-	crawler "digi-bot/crawler/digikalaCrawler"
-	"digi-bot/db"
-	"digi-bot/graph"
-	"digi-bot/messageCreator"
 	"digi-bot/model"
+	"digi-bot/service"
+	"digi-bot/utils"
 	"errors"
 	"log"
-	"regexp"
 	"strconv"
-	"strings"
 	"time"
 )
 
-func AddProductToDB(senderId int, url string) (model.ProductDto, int, error) {
-	//fmt.Printf("%+v %+v\n", senderId, url)
-	if res := strings.Contains(url, "digikala.com"); !res {
-		return model.ProductDto{}, 0, errors.New("ادرس نامعتبر است")
-	}
-
-	product, err := crawler.DigikalaCrawler{}.Crawl(url)
-	if err != nil {
-		return model.ProductDto{}, 0, err
-	}
-
-	//fmt.Printf("%+v", product)
+func AddProductToDB(product model.ProductDto, senderId int) (err error) {
 	productModel := product.ToProduct()
 
-	result := db.DB.Where(productModel).Find(&productModel)
+	result := database.Where(productModel).Find(&productModel)
 	if result.RowsAffected == 0 {
-		productModel.RealID = ExtractProductRealId(productModel.Url)
-		db.DB.Create(&productModel)
+		productModel.RealID = product.Id
+		database.Create(&productModel)
 	}
 
 	pivot := model.Pivot{UserID: senderId, ProductID: productModel.ID, NotificationSetting: 1}
-	db.DB.Create(&pivot)
+	database.Create(&pivot)
 
 	log.Printf("new product added: %s\n", product.Name)
-	return product, productModel.ID, nil
+	return
 }
 
 func UpdateProduct(product model.Product, newProduct model.ProductDto) {
 	product.Price = newProduct.Price
 	product.Status = newProduct.Status
-	db.DB.Save(&product)
+	database.Save(&product)
 
 	commitPriceChange(newProduct.Price, product.ID)
 }
 
 func DeleteAllUserProduct(userId int) {
-	db.DB.Where("user_id = ?", userId).Delete(&model.Pivot{})
+	database.Where("user_id = ?", userId).Delete(&model.Pivot{})
 }
 
 func DeleteProduct(productId string, userId int) string {
 	var ids []int
 	id, _ := strconv.Atoi(productId)
 
-	db.DB.
+	database.
 		Select("pivots.id").
 		Model(&model.Pivot{}).
 		Joins("JOIN products product on product.id = pivots.product_id").
@@ -69,32 +54,32 @@ func DeleteProduct(productId string, userId int) string {
 	}
 
 	var deletedPivot model.Pivot
-	db.DB.
+	database.
 		Model(&model.Pivot{}).
 		Where("id IN ?", ids).
 		First(&deletedPivot).
 		Delete(&model.Pivot{})
 
-	product := db.GetProductById(deletedPivot.ProductID)
+	product := GetProductById(deletedPivot.ProductID)
 
-	msg := messageCreator.CreateDeleteProductSuccessfulMsg(product.ToDto())
+	msg := service.CreateDeleteProductSuccessfulMsg(product.ToDto())
 
 	return msg
 }
 
 func GetProductList(userId int) string {
-	products := db.GetAllProductByUserId(userId)
-	return messageCreator.CreateProductListMsg(products)
+	products := GetAllProductByUserId(userId)
+	return service.CreateProductListMsg(products)
 }
 
 func commitPriceChange(price int, productID int) {
-	db.DB.Create(&model.History{Price: price, ProductID: productID, Date: time.Now()})
+	database.Create(&model.History{Price: price, ProductID: productID, Date: time.Now()})
 }
 
 func GetGraphPicName(productId string) (string, error) {
 	pid, _ := strconv.Atoi(productId)
 	var prices []model.GraphData
-	db.DB.
+	database.
 		Model(&model.History{}).
 		Joins("JOIN products product on product.id = histories.product_id").
 		Where("product.id = ? AND histories.price > 0", pid).
@@ -104,7 +89,7 @@ func GetGraphPicName(productId string) (string, error) {
 		return "", errors.New("تعداد قیمت ثبت‌شده کمتر از ۳ هست")
 	}
 
-	imagePath, err := graph.LinearRegreasion(prices)
+	imagePath, err := utils.LinearRegreasion(prices)
 
 	if err != nil {
 		log.Println(err)
@@ -117,7 +102,7 @@ func GetGraphPicName(productId string) (string, error) {
 func GetHistoryPicName(productId string) (string, error) {
 	pid, _ := strconv.Atoi(productId)
 	var prices []model.GraphData
-	db.DB.
+	database.
 		Model(&model.BulkHistory{}).
 		Joins("JOIN products product on product.real_id = bulk_histories.source_product_id").
 		Where("product.id = ? AND bulk_histories.price > 0", pid).
@@ -128,7 +113,7 @@ func GetHistoryPicName(productId string) (string, error) {
 	}
 
 	//imagePath, err := graph.LinearRegreasion(prices)
-	imagePath, err := graph.StockAnalysis(prices)
+	imagePath, err := utils.StockAnalysis(prices)
 
 	if err != nil {
 		log.Println(err)
@@ -136,10 +121,4 @@ func GetHistoryPicName(productId string) (string, error) {
 	}
 
 	return imagePath, nil
-}
-
-func ExtractProductRealId(url string) int {
-	regex := regexp.MustCompile(`.*dkp-(\d*).*`)
-	id, _ := strconv.Atoi(regex.FindStringSubmatch(url)[1])
-	return id
 }

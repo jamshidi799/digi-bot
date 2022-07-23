@@ -1,8 +1,8 @@
 package crawler
 
 import (
-	"digi-bot/crawler/digikalaCrawler/entity"
-	"digi-bot/db"
+	"digi-bot/model/db"
+	"digi-bot/service/crawler/digikalaCrawler/entity"
 	"fmt"
 	"github.com/gocolly/colly"
 	"github.com/m7shapan/njson"
@@ -36,7 +36,7 @@ func crawlCategory(category string) {
 			break
 		}
 
-		db.DB.Create(&batch)
+		db.SaveBulkHistories(&batch)
 		addProductCount += len(batch)
 
 		if pageNumber >= data.Pages {
