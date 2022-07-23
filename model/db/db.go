@@ -52,5 +52,4 @@ func migration() {
 	_ = database.AutoMigrate(&model.Product{})
 	_ = database.AutoMigrate(&model.Pivot{})
 	_ = database.AutoMigrate(&model.History{})
-	_ = database.AutoMigrate(&model.BulkHistory{})
 }

@@ -29,7 +29,3 @@ func GetProductById(id int) model.Product {
 	database.First(&product, id)
 	return product
 }
-
-func SaveBulkHistories(histories *[]model.BulkHistory) {
-	database.Create(histories)
-}

@@ -85,35 +85,11 @@ func GetGraphPicName(productId string) (string, error) {
 		Where("product.id = ? AND histories.price > 0", pid).
 		Find(&prices)
 
-	if len(prices) < 3 {
-		return "", errors.New("تعداد قیمت ثبت‌شده کمتر از ۳ هست")
+	if len(prices) < 5 {
+		return "", errors.New("تعداد قیمت ثبت‌شده کمتر از 5 هست")
 	}
 
 	imagePath, err := utils.LinearRegreasion(prices)
-
-	if err != nil {
-		log.Println(err)
-		return "", errors.New("خطا در ساخت تصویر")
-	}
-
-	return imagePath, nil
-}
-
-func GetHistoryPicName(productId string) (string, error) {
-	pid, _ := strconv.Atoi(productId)
-	var prices []model.GraphData
-	database.
-		Model(&model.BulkHistory{}).
-		Joins("JOIN products product on product.real_id = bulk_histories.source_product_id").
-		Where("product.id = ? AND bulk_histories.price > 0", pid).
-		Find(&prices)
-
-	if len(prices) < 3 {
-		return "", errors.New("تعداد قیمت ثبت‌شده کمتر از ۳ هست")
-	}
-
-	//imagePath, err := graph.LinearRegreasion(prices)
-	imagePath, err := utils.StockAnalysis(prices)
 
 	if err != nil {
 		log.Println(err)

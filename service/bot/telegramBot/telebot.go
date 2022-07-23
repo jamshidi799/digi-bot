@@ -63,7 +63,6 @@ func (tlBot TelegramBot) callHandlers() {
 	tlBot.handleHelp()
 	tlBot.handleList()
 	tlBot.handleGraph()
-	tlBot.handleHistory()
 	tlBot.handleSetting()
 }
 
@@ -170,25 +169,6 @@ func (tlBot TelegramBot) handleGraph() {
 	})
 }
 
-func (tlBot TelegramBot) handleHistory() {
-	bot := tlBot.bot
-
-	selector := &tb.ReplyMarkup{}
-	btnHistory := selector.Data("نمودار بلند‌مدت", "history")
-
-	bot.Handle(&btnHistory, func(c *tb.Callback) {
-		imagePath, err := db.GetHistoryPicName(c.Data)
-		if err != nil {
-			bot.Reply(c.Message, err)
-		} else {
-			image := &tb.Photo{File: tb.FromDisk(imagePath)}
-			bot.Reply(c.Message, image)
-		}
-		log.Println(imagePath)
-		commandLogs("history", c.Sender.ID)
-	})
-}
-
 func (tlBot TelegramBot) handleSetting() {
 	bot := tlBot.bot
 
@@ -256,11 +236,10 @@ func getProductSelector(productId int) *tb.ReplyMarkup {
 	btnGraph := selector.Data("نمودار قیمت", "graph", productIdStr)
 	btnDelete := selector.Data("حذف", "delete", productIdStr)
 	btnSetting := selector.Data("تنظیمات", "setting", productIdStr)
-	btnHistory := selector.Data("نمودار بلند‌مدت", "history", productIdStr)
 
 	selector.Inline(
 		selector.Row(btnGraph, btnDelete),
-		selector.Row(btnSetting, btnHistory),
+		selector.Row(btnSetting),
 	)
 	return selector
 }
