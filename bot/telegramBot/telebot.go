@@ -229,7 +229,9 @@ func (tlBot TelegramBot) handleSetting() {
 	})
 }
 
-func (tlBot TelegramBot) SendUpdateForUsers(usersId []int, productId int, message string, available bool) {
+func (tlBot TelegramBot) SendUpdateForUsers(productId int, message string, available bool, changeLevel int) {
+	usersId := db.GetAllUsersIdByProductId(productId, changeLevel)
+
 	rand.Seed(time.Now().UnixNano())
 	for _, userId := range usersId {
 		user := db.GetUserById(userId)

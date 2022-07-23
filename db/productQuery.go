@@ -17,6 +17,7 @@ func GetAllProductByUserId(userId int) []string {
 		Select("product.name").
 		Model(&model.Pivot{}).
 		Joins("JOIN products product on product.id = pivots.product_id").
+		//Preload("Pivots").
 		Where("pivots.user_id = ?", userId).
 		Find(&products)
 

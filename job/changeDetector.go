@@ -1,6 +1,7 @@
 package job
 
 import (
+	bot "digi-bot/bot/telegramBot"
 	"digi-bot/crawler/digikalaCrawler"
 	"digi-bot/db"
 	"digi-bot/messageCreator"
@@ -39,7 +40,7 @@ func refresh() int {
 				product.Price,
 				newProduct.Price)
 			available := isChanged && newProduct.Status != 0
-			service.SendProductUpdateToUsers(product.ID, message, changeLevel, available)
+			bot.GetTelegramBot().SendUpdateForUsers(product.ID, message, available, changeLevel)
 			service.UpdateProduct(product, newProduct)
 			updateCount++
 		}
