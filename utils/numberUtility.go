@@ -1,4 +1,4 @@
-package messageCreator
+package utils
 
 import (
 	"golang.org/x/text/language"

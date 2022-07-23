@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var DB *gorm.DB
+var database *gorm.DB
 
 func Init() *gorm.DB {
 	err := godotenv.Load(".env")
@@ -28,7 +28,7 @@ func Init() *gorm.DB {
 
 	for i := 1; i <= 5; i++ {
 		log.Printf("connect to db try %d", i)
-		DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		database, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
 			log.Println(err)
 		} else {
@@ -44,13 +44,12 @@ func Init() *gorm.DB {
 	}
 
 	migration()
-	return DB
+	return database
 }
 
 func migration() {
-	_ = DB.AutoMigrate(&model.User{})
-	_ = DB.AutoMigrate(&model.Product{})
-	_ = DB.AutoMigrate(&model.Pivot{})
-	_ = DB.AutoMigrate(&model.History{})
-	_ = DB.AutoMigrate(&model.BulkHistory{})
+	_ = database.AutoMigrate(&model.User{})
+	_ = database.AutoMigrate(&model.Product{})
+	_ = database.AutoMigrate(&model.Pivot{})
+	_ = database.AutoMigrate(&model.History{})
 }

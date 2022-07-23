@@ -1,7 +1,8 @@
-package messageCreator
+package service
 
 import (
 	"digi-bot/model"
+	"digi-bot/utils"
 	"fmt"
 )
 
@@ -12,13 +13,13 @@ func CreateNormalPriceChangeMsg(product model.ProductDto, newPrice int, oldPrice
 
 	if oldPrice == 0 {
 		output = output.
-			Append(fmt.Sprintf("ناموجود😱🔒 -> %s", Number(newPrice).AddComma()))
+			Append(fmt.Sprintf("ناموجود😱🔒 -> %s", utils.Number(newPrice).AddComma()))
 	} else if newPrice == 0 {
 		output = output.
-			Append(fmt.Sprintf("%s -> ناموجود😱🔒", Number(oldPrice).AddComma()))
+			Append(fmt.Sprintf("%s -> ناموجود😱🔒", utils.Number(oldPrice).AddComma()))
 	} else {
 		output = output.
-			Append(fmt.Sprintf("%s -> %s", Number(oldPrice).AddComma(), Number(newPrice).AddComma()))
+			Append(fmt.Sprintf("%s -> %s", utils.Number(oldPrice).AddComma(), utils.Number(newPrice).AddComma()))
 	}
 
 	output = output.Append(createProductDetailMsg(product)).AddNewLine()
@@ -27,7 +28,7 @@ func CreateNormalPriceChangeMsg(product model.ProductDto, newPrice int, oldPrice
 }
 
 func CreatePreviewMsg(product model.ProductDto) string {
-	output := String(`🟣`).
+	output := utils.String(`🟣`).
 		Append(product.Name).
 		Bold().
 		AddNewLine().
@@ -38,19 +39,19 @@ func CreatePreviewMsg(product model.ProductDto) string {
 		output = output.
 			Append("قیمت: ").
 			Append(fmt.Sprintf("%s -> %s",
-				Number(product.OldPrice).
+				utils.Number(product.OldPrice).
 					AddComma().
 					Strike(),
-				Number(product.Price).
+				utils.Number(product.Price).
 					AddComma()))
 	} else {
 		if product.Price != 0 {
 			output = output.
 				Append("قیمت: ").
-				Append(Number(product.Price).AddComma().ToString())
+				Append(utils.Number(product.Price).AddComma().ToString())
 		} else {
 			output = output.
-				Append(String("ناموجود😱🔒").Bold().ToString())
+				Append(utils.String("ناموجود😱🔒").Bold().ToString())
 		}
 	}
 
@@ -63,7 +64,7 @@ func CreateNotAvailableMsg(product model.ProductDto) string {
 	output := createHeader(product).
 		AddNewLine().
 		Append("🔹").
-		Append(String("ناموجود😱🔒").
+		Append(utils.String("ناموجود😱🔒").
 			Bold().
 			ToString())
 
@@ -77,8 +78,8 @@ func CreateDeleteProductSuccessfulMsg(product model.ProductDto) string {
 	return output.ToString()
 }
 
-func createHeader(product model.ProductDto) String {
-	output := String(`🟣`).Append(product.Name).
+func createHeader(product model.ProductDto) utils.String {
+	output := utils.String(`🟣`).Append(product.Name).
 		Bold().
 		ToLink(product.Url).
 		AddNewLine()
@@ -87,7 +88,7 @@ func createHeader(product model.ProductDto) String {
 }
 
 func CreateHelpMsg() string {
-	start := String("/start").
+	start := utils.String("/start").
 		Bold().
 		AddNewLine().
 		Append("قبل از شروع کار با بات(وارد کردن کالاها) حتما این دستور رو وارد کنید").
@@ -95,7 +96,7 @@ func CreateHelpMsg() string {
 		AddNewLine().
 		ToString()
 
-	add := String("/add").
+	add := utils.String("/add").
 		Bold().
 		AddNewLine().
 		Append("برای اضافه کردن کالا (فعلا فقط کالاهای دیجی‌کالا ساپورت میشه)").
@@ -103,7 +104,7 @@ func CreateHelpMsg() string {
 		AddNewLine().
 		ToString()
 
-	list := String("/list").
+	list := utils.String("/list").
 		Bold().
 		AddNewLine().
 		Append("برای دریافت لیست کالاهای اضافه شده").
@@ -111,7 +112,7 @@ func CreateHelpMsg() string {
 		AddNewLine().
 		ToString()
 
-	deleteAll := String("/deleteall").
+	deleteAll := utils.String("/deleteall").
 		Bold().
 		AddNewLine().
 		Append("این دستور همه محصولات شما را پاک میکند").
@@ -123,7 +124,7 @@ func CreateHelpMsg() string {
 }
 
 func createProductDetailMsg(product model.ProductDto) string {
-	output := String("\n")
+	output := utils.String("\n")
 	if product.Desc1 != "" {
 		output = output.
 			Append("🔹").
@@ -147,7 +148,7 @@ func createProductDetailMsg(product model.ProductDto) string {
 }
 
 func CreateProductListMsg(products []string) string {
-	str := String("")
+	str := utils.String("")
 	for _, product := range products {
 		str = str.Append("🔹").
 			Append(product).
@@ -158,7 +159,7 @@ func CreateProductListMsg(products []string) string {
 }
 
 func CreateChangeSettingGuide() string {
-	output := String("کی نوتیف بیاد؟").
+	output := utils.String("کی نوتیف بیاد؟").
 		Bold().
 		AddNewLine().
 		AddNewLine().
