@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func UpdateStatus(status int, productId string, userId int) string {
+func UpdateStatus(status int, productId string, userId int64) string {
 	result := database.
 		Table("pivots").
 		Where("user_id = ? AND product_id = ?", userId, productId).

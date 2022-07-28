@@ -38,7 +38,7 @@ func DeleteAllUserProduct(userId int) {
 	database.Where("user_id = ?", userId).Delete(&model.Pivot{})
 }
 
-func DeleteProduct(productId string, userId int) string {
+func DeleteProduct(productId string, userId int64) string {
 	var ids []int
 	id, _ := strconv.Atoi(productId)
 

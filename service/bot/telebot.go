@@ -3,7 +3,7 @@ package bot
 import (
 	"digi-bot/model/db"
 	"digi-bot/service"
-	crawler2 "digi-bot/service/crawler"
+	"digi-bot/service/crawler"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
@@ -13,13 +13,13 @@ import (
 	"sync"
 	"time"
 
-	tb "gopkg.in/tucnak/telebot.v2"
+	tele "gopkg.in/telebot.v3"
 )
 
 var telegramBot TelegramBot
 
 type TelegramBot struct {
-	bot *tb.Bot
+	bot *tele.Bot
 }
 
 func GetTelegramBot() TelegramBot {
@@ -39,9 +39,9 @@ func InitTelegramBot(group *sync.WaitGroup) {
 
 	token := os.Getenv("BOT_TOKEN")
 
-	telegramBot.bot, err = tb.NewBot(tb.Settings{
+	telegramBot.bot, err = tele.NewBot(tele.Settings{
 		Token:  token,
-		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
+		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	})
 
 	if err != nil {
@@ -67,144 +67,147 @@ func (tlBot TelegramBot) callHandlers() {
 }
 
 func (tlBot TelegramBot) handleStart() {
-	tlBot.bot.Handle("/start", func(m *tb.Message) {
-		db.SaveUser(m.Sender)
+	tlBot.bot.Handle("/start", func(c tele.Context) error {
+		commandLogs("start", c.Sender().ID)
+		db.SaveUser(c.Sender())
 
-		_, _ = tlBot.bot.Send(m.Sender, service.CreateHelpMsg(), &tb.SendOptions{
+		return c.Send(c.Sender(), service.CreateHelpMsg(), &tele.SendOptions{
 			ParseMode: "HTML",
 		})
-
-		commandLogs("start", m.Sender.ID)
 	})
 }
 
 func (tlBot TelegramBot) handleDeleteAll() {
 	bot := tlBot.bot
-	bot.Handle("/deleteall", func(m *tb.Message) {
-		db.DeleteAllUserProduct(m.Sender.ID)
-		bot.Reply(m, "لیست کالا با موفقیت پاک شد")
+	bot.Handle("/deleteall", func(c tele.Context) error {
+		commandLogs("delete all", c.Sender().ID)
+		db.DeleteAllUserProduct(int(c.Sender().ID))
 
-		commandLogs("delete all", m.Sender.ID)
+		return c.Reply(c.Message(), "لیست کالا با موفقیت پاک شد")
 	})
 }
 
 func (tlBot TelegramBot) handleAdd() {
 	bot := tlBot.bot
-	crawler := crawler2.DigikalaCrawler{}
+	crawler := crawler.DigikalaCrawler{}
 
-	bot.Handle("/add", func(m *tb.Message) {
-		bot.Reply(m, "آدرس (url) کالا را وارد کنید")
-		bot.Handle(tb.OnText, func(m *tb.Message) {
-			product, err := crawler.Crawl(m.Text)
-			err = db.AddProductToDB(product, m.Sender.ID)
+	bot.Handle("/add", func(c tele.Context) error {
+		commandLogs("add", c.Sender().ID)
+		err := c.Reply(c.Message(), "آدرس (url) کالا را وارد کنید")
+
+		bot.Handle(tele.OnText, func(c tele.Context) error {
+			product, err := crawler.Crawl(c.Text())
+			err = db.AddProductToDB(product, int(c.Sender().ID))
 			if err != nil {
-				_, _ = bot.Send(m.Sender, err.Error())
+				return c.Send(c.Sender(), err.Error())
 			} else {
 				message := service.CreatePreviewMsg(product)
-				_, _ = bot.Send(
-					m.Sender,
+				return c.Send(
+					c.Sender(),
 					message,
-					&tb.SendOptions{
+					&tele.SendOptions{
 						ParseMode:   "HTML",
 						ReplyMarkup: getProductSelector(product.Id),
 					})
 			}
 		})
-
-		commandLogs("add", m.Sender.ID)
+		return err
 	})
 }
 
 func (tlBot TelegramBot) handleHelp() {
 	bot := tlBot.bot
-	bot.Handle("/help", func(m *tb.Message) {
-		bot.Send(m.Sender, service.CreateHelpMsg(), &tb.SendOptions{
+	bot.Handle("/help", func(c tele.Context) error {
+		commandLogs("help", c.Sender().ID)
+		return c.Send(c.Sender(), service.CreateHelpMsg(), &tele.SendOptions{
 			ParseMode: "HTML",
 		})
-
-		commandLogs("help", m.Sender.ID)
 	})
 }
 
 func (tlBot TelegramBot) handleList() {
 	bot := tlBot.bot
-	bot.Handle("/list", func(m *tb.Message) {
-		bot.Send(m.Sender, db.GetProductList(m.Sender.ID), &tb.SendOptions{
+	bot.Handle("/list", func(c tele.Context) error {
+		commandLogs("list", c.Sender().ID)
+		return c.Send(c.Sender(), db.GetProductList(int(c.Sender().ID)), &tele.SendOptions{
 			ParseMode: "HTML",
 		})
-
-		commandLogs("list", m.Sender.ID)
 	})
 }
 
 func (tlBot TelegramBot) handleDelete() {
 	bot := tlBot.bot
-	selector := &tb.ReplyMarkup{}
+	selector := &tele.ReplyMarkup{}
 	btnDelete := selector.Data("حذف", "delete")
 
-	bot.Handle(&btnDelete, func(c *tb.Callback) {
-		msg := db.DeleteProduct(c.Data, c.Sender.ID)
-		bot.Reply(c.Message, msg, &tb.SendOptions{
+	bot.Handle(&btnDelete, func(c tele.Context) error {
+		commandLogs("delete", c.Sender().ID)
+		msg := db.DeleteProduct(c.Data(), c.Sender().ID)
+		return c.Reply(c.Message(), msg, &tele.SendOptions{
 			ParseMode: "HTML",
 		})
-
-		commandLogs("delete", c.Sender.ID)
 	})
 }
 
 func (tlBot TelegramBot) handleGraph() {
 	bot := tlBot.bot
 
-	selector := &tb.ReplyMarkup{}
+	selector := &tele.ReplyMarkup{}
 	btnGraph := selector.Data("نمودار قیمت", "graph")
 
-	bot.Handle(&btnGraph, func(c *tb.Callback) {
-		imagePath, err := db.GetGraphPicName(c.Data)
+	bot.Handle(&btnGraph, func(c tele.Context) error {
+		commandLogs("graph", c.Sender().ID)
+		imagePath, err := db.GetGraphPicName(c.Data())
 		if err != nil {
-			bot.Reply(c.Message, err)
+			err := c.Reply(c.Message(), err)
+			if err != nil {
+				return err
+			}
 		} else {
-			image := &tb.Photo{File: tb.FromDisk(imagePath)}
-			bot.Reply(c.Message, image)
+			image := &tele.Photo{File: tele.FromDisk(imagePath)}
+			err := c.Reply(c.Message(), image)
+			if err != nil {
+				return err
+			}
 		}
 		log.Println(imagePath)
-		commandLogs("graph", c.Sender.ID)
+		return err
 	})
 }
 
 func (tlBot TelegramBot) handleSetting() {
 	bot := tlBot.bot
 
-	selector := &tb.ReplyMarkup{}
+	selector := &tele.ReplyMarkup{}
 	btnSetting := selector.Data("تنظیمات", "setting")
 	btnOne := selector.Data("1", "one")
 	btnTwo := selector.Data("2", "two")
 
-	bot.Handle(&btnSetting, func(c *tb.Callback) {
+	bot.Handle(&btnSetting, func(c tele.Context) error {
+		commandLogs("setting", c.Sender().ID)
 		msg := service.CreateChangeSettingGuide()
-		productId := c.Data
-		bot.Reply(c.Message, msg, &tb.SendOptions{
+		productId := c.Data()
+		return c.Reply(c.Message(), msg, &tele.SendOptions{
 			ParseMode:   "HTML",
 			ReplyMarkup: getProductSettingSelector(productId),
 		})
-
-		commandLogs("setting", c.Sender.ID)
 	})
 
-	bot.Handle(&btnOne, func(c *tb.Callback) {
-		productId := c.Data
-		userId := c.Sender.ID
+	bot.Handle(&btnOne, func(c tele.Context) error {
+		productId := c.Data()
+		userId := c.Sender().ID
 		msg := db.UpdateStatus(1, productId, userId)
-		bot.Reply(c.Message, msg, &tb.SendOptions{
+		return c.Reply(c.Message(), msg, &tele.SendOptions{
 			ParseMode: "HTML",
 		})
 	})
 
-	bot.Handle(&btnTwo, func(c *tb.Callback) {
-		productId := c.Data
-		userId := c.Sender.ID
+	bot.Handle(&btnTwo, func(c tele.Context) error {
+		productId := c.Data()
+		userId := c.Sender().ID
 		msg := db.UpdateStatus(2, productId, userId)
 
-		bot.Reply(c.Message, msg, &tb.SendOptions{
+		return c.Reply(c.Message(), msg, &tele.SendOptions{
 			ParseMode: "HTML",
 		})
 	})
@@ -216,7 +219,7 @@ func (tlBot TelegramBot) SendUpdateForUsers(productId int, message string, avail
 	rand.Seed(time.Now().UnixNano())
 	for _, userId := range usersId {
 		user := db.GetUserById(userId)
-		msg, _ := tlBot.bot.Send(user.ToTbUser(), message, &tb.SendOptions{
+		msg, _ := tlBot.bot.Send(user.ToTbUser(), message, &tele.SendOptions{
 			ParseMode:   "HTML",
 			ReplyMarkup: getProductSelector(productId),
 		})
@@ -225,18 +228,17 @@ func (tlBot TelegramBot) SendUpdateForUsers(productId int, message string, avail
 			if random == 0 {
 				tlBot.bot.Reply(msg, "💩")
 			} else {
-				gif := &tb.Animation{File: tb.FromDisk(fmt.Sprintf("assets/gif%d.mp4", random))}
+				gif := &tele.Animation{File: tele.FromDisk(fmt.Sprintf("assets/gif%d.mp4", random))}
 				tlBot.bot.Reply(msg, gif)
 			}
 		}
 	}
 }
 
-func getProductSelector(productId int) *tb.ReplyMarkup {
+func getProductSelector(productId int) *tele.ReplyMarkup {
 	productIdStr := strconv.Itoa(productId)
-	selector := &tb.ReplyMarkup{}
+	selector := &tele.ReplyMarkup{}
 	btnGraph := selector.Data("نمودار قیمت", "graph", productIdStr)
-	test := selector.URL("test", "google.com")
 	btnDelete := selector.Data("حذف", "delete", productIdStr)
 	btnSetting := selector.Data("تنظیمات", "setting", productIdStr)
 
@@ -244,12 +246,11 @@ func getProductSelector(productId int) *tb.ReplyMarkup {
 		selector.Row(btnGraph, btnDelete),
 		selector.Row(btnSetting),
 	)
-	selector.Reply(selector.Row(test))
 	return selector
 }
 
-func getProductSettingSelector(productId string) *tb.ReplyMarkup {
-	selector := &tb.ReplyMarkup{}
+func getProductSettingSelector(productId string) *tele.ReplyMarkup {
+	selector := &tele.ReplyMarkup{}
 	btnOne := selector.Data("1", "one", productId)
 	btnTwo := selector.Data("2", "two", productId)
 	//btnThree := selector.Data("3", "three", productId)
@@ -260,6 +261,6 @@ func getProductSettingSelector(productId string) *tb.ReplyMarkup {
 	return selector
 }
 
-func commandLogs(command string, userId int) {
+func commandLogs(command string, userId int64) {
 	log.Printf("command: %s, userId: %d", command, userId)
 }

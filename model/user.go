@@ -2,12 +2,12 @@ package model
 
 import (
 	"github.com/jinzhu/gorm"
-	tb "gopkg.in/tucnak/telebot.v2"
+	tb "gopkg.in/telebot.v3"
 )
 
 type User struct {
 	gorm.Model
-	ID              int
+	ID              int64
 	Username        string `gorm:"unique_index"`
 	FirstName       string `gorm:"size:64"`
 	LastName        string `gorm:"size:64"`
