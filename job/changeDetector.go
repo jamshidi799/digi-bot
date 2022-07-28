@@ -4,8 +4,8 @@ import (
 	"digi-bot/model"
 	"digi-bot/model/db"
 	"digi-bot/service"
-	"digi-bot/service/bot/telegramBot"
-	"digi-bot/service/crawler/digikalaCrawler"
+	"digi-bot/service/bot"
+	"digi-bot/service/changeDetector"
 	"log"
 	"time"
 )
@@ -14,7 +14,7 @@ func ChangeDetectorJob() {
 	for {
 		log.Printf("--------------- Scheduler --------------------\n")
 
-		updateCount := refresh()
+		updateCount := refresh(&changeDetector.DigikalaChangeDetector{})
 
 		log.Printf("compare finished. num of update: %d \n", updateCount)
 		log.Printf("--------------- done --------------------\n")
@@ -23,16 +23,9 @@ func ChangeDetectorJob() {
 	}
 }
 
-func refresh() int {
+func refresh(c changeDetector.ChangeDetector) int {
 	updateCount := 0
-	products := db.GetAllProduct()
-
-	for _, product := range products {
-		newProduct, err := crawler.DigikalaCrawler{}.Crawl(product.Url)
-		if err != nil {
-			log.Println(newProduct)
-			continue
-		}
+	c.Detect(func(newProduct model.ProductDto, product model.Product) {
 
 		if message, isChanged, changeLevel := compare(newProduct, product.ToDto()); isChanged {
 			log.Printf("old price: %d, new price: %d",
@@ -43,10 +36,8 @@ func refresh() int {
 			db.UpdateProduct(product, newProduct)
 			updateCount++
 		}
+	})
 
-		//break
-		time.Sleep(time.Second * 1)
-	}
 	return updateCount
 }
 

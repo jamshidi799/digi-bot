@@ -3,7 +3,7 @@ package bot
 import (
 	"digi-bot/model/db"
 	"digi-bot/service"
-	crawler "digi-bot/service/crawler/digikalaCrawler"
+	crawler2 "digi-bot/service/crawler"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
@@ -90,10 +90,12 @@ func (tlBot TelegramBot) handleDeleteAll() {
 
 func (tlBot TelegramBot) handleAdd() {
 	bot := tlBot.bot
+	crawler := crawler2.DigikalaCrawler{}
+
 	bot.Handle("/add", func(m *tb.Message) {
 		bot.Reply(m, "آدرس (url) کالا را وارد کنید")
 		bot.Handle(tb.OnText, func(m *tb.Message) {
-			product, err := crawler.DigikalaCrawler{}.Crawl(m.Text)
+			product, err := crawler.Crawl(m.Text)
 			err = db.AddProductToDB(product, m.Sender.ID)
 			if err != nil {
 				_, _ = bot.Send(m.Sender, err.Error())

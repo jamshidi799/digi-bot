@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"digi-bot/service/bot/telegramBot"
 	"sync"
 )
 
@@ -10,5 +9,5 @@ type Bot interface {
 }
 
 func StartBot(group *sync.WaitGroup) {
-	bot.InitTelegramBot(group)
+	InitTelegramBot(group)
 }
