@@ -12,16 +12,15 @@ type Crawler interface {
 }
 
 var (
-	digikalaCrawler = DigikalaCrawler{}
-	torobCrawler    = TorobCrawler{}
+	Crawlers = []Crawler{&DigikalaCrawler{}, &TorobCrawler{}}
 )
 
 func Crawl(url string) (model.ProductDto, error) {
-	if strings.Contains(url, digikalaCrawler.GetDomain()) {
-		return digikalaCrawler.Crawl(url)
-	} else if strings.Contains(url, torobCrawler.GetDomain()) {
-		return torobCrawler.Crawl(url)
-	} else {
-		return model.ProductDto{}, errors.New("crawler for that domain not found")
+	for _, crawler := range Crawlers {
+		if strings.Contains(url, crawler.GetDomain()) {
+			return crawler.Crawl(url)
+		}
 	}
+
+	return model.ProductDto{}, errors.New("crawler for that domain not found")
 }
