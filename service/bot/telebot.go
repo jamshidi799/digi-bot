@@ -89,21 +89,22 @@ func (tlBot TelegramBot) handleDeleteAll() {
 
 func (tlBot TelegramBot) handleAdd() {
 	bot := tlBot.bot
-	crawler := crawler.DigikalaCrawler{}
 
 	bot.Handle("/add", func(c tele.Context) error {
 		commandLogs("add", c.Sender().ID)
-		err := c.Reply(c.Message(), "آدرس (url) کالا را وارد کنید")
+		err := c.Reply("آدرس (url) کالا را وارد کنید")
 
 		bot.Handle(tele.OnText, func(c tele.Context) error {
 			product, err := crawler.Crawl(c.Text())
+			if err != nil {
+				return c.Send(err.Error())
+			}
 			err = db.AddProductToDB(product, int(c.Sender().ID))
 			if err != nil {
-				return c.Send(c.Sender(), err.Error())
+				return c.Send(err.Error())
 			} else {
 				message := service.CreatePreviewMsg(product)
 				return c.Send(
-					c.Sender(),
 					message,
 					&tele.SendOptions{
 						ParseMode:   "HTML",
@@ -119,7 +120,7 @@ func (tlBot TelegramBot) handleHelp() {
 	bot := tlBot.bot
 	bot.Handle("/help", func(c tele.Context) error {
 		commandLogs("help", c.Sender().ID)
-		return c.Send(c.Sender(), service.CreateHelpMsg(), &tele.SendOptions{
+		return c.Send(service.CreateHelpMsg(), &tele.SendOptions{
 			ParseMode: "HTML",
 		})
 	})
@@ -129,7 +130,7 @@ func (tlBot TelegramBot) handleList() {
 	bot := tlBot.bot
 	bot.Handle("/list", func(c tele.Context) error {
 		commandLogs("list", c.Sender().ID)
-		return c.Send(c.Sender(), db.GetProductList(int(c.Sender().ID)), &tele.SendOptions{
+		return c.Send(db.GetProductList(int(c.Sender().ID)), &tele.SendOptions{
 			ParseMode: "HTML",
 		})
 	})
@@ -143,7 +144,7 @@ func (tlBot TelegramBot) handleDelete() {
 	bot.Handle(&btnDelete, func(c tele.Context) error {
 		commandLogs("delete", c.Sender().ID)
 		msg := db.DeleteProduct(c.Data(), c.Sender().ID)
-		return c.Reply(c.Message(), msg, &tele.SendOptions{
+		return c.Reply(msg, &tele.SendOptions{
 			ParseMode: "HTML",
 		})
 	})
@@ -159,13 +160,13 @@ func (tlBot TelegramBot) handleGraph() {
 		commandLogs("graph", c.Sender().ID)
 		imagePath, err := db.GetGraphPicName(c.Data())
 		if err != nil {
-			err := c.Reply(c.Message(), err)
+			err := c.Reply(err)
 			if err != nil {
 				return err
 			}
 		} else {
 			image := &tele.Photo{File: tele.FromDisk(imagePath)}
-			err := c.Reply(c.Message(), image)
+			err := c.Reply(image)
 			if err != nil {
 				return err
 			}
@@ -187,7 +188,7 @@ func (tlBot TelegramBot) handleSetting() {
 		commandLogs("setting", c.Sender().ID)
 		msg := service.CreateChangeSettingGuide()
 		productId := c.Data()
-		return c.Reply(c.Message(), msg, &tele.SendOptions{
+		return c.Reply(msg, &tele.SendOptions{
 			ParseMode:   "HTML",
 			ReplyMarkup: getProductSettingSelector(productId),
 		})
@@ -197,7 +198,7 @@ func (tlBot TelegramBot) handleSetting() {
 		productId := c.Data()
 		userId := c.Sender().ID
 		msg := db.UpdateStatus(1, productId, userId)
-		return c.Reply(c.Message(), msg, &tele.SendOptions{
+		return c.Reply(msg, &tele.SendOptions{
 			ParseMode: "HTML",
 		})
 	})
@@ -207,7 +208,7 @@ func (tlBot TelegramBot) handleSetting() {
 		userId := c.Sender().ID
 		msg := db.UpdateStatus(2, productId, userId)
 
-		return c.Reply(c.Message(), msg, &tele.SendOptions{
+		return c.Reply(msg, &tele.SendOptions{
 			ParseMode: "HTML",
 		})
 	})

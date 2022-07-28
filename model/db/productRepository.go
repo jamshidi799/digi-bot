@@ -2,6 +2,7 @@ package db
 
 import (
 	"digi-bot/model"
+	"fmt"
 )
 
 func GetAllProduct() []model.Product {
@@ -28,4 +29,14 @@ func GetProductById(id int) model.Product {
 	var product model.Product
 	database.First(&product, id)
 	return product
+}
+
+func GetAllProductByDomain(domain string) []model.Product {
+	var products []model.Product
+
+	database.Model(&model.Product{}).
+		Where(fmt.Sprintf("url like '%%%s%%'", domain)).
+		Find(&products)
+
+	return products
 }

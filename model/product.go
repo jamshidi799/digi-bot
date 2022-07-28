@@ -7,7 +7,7 @@ import (
 type Product struct {
 	gorm.Model
 	ID        int
-	RealID    int
+	Sku       string
 	Url       string
 	Name      string
 	Price     int
@@ -32,9 +32,7 @@ type ProductDto struct {
 	Price    int
 	OldPrice int
 	Status   int
-	Desc1    string
-	Desc2    string
-	Desc3    string
+	Sku      string
 }
 
 func (product ProductDto) ToProduct() Product {
@@ -43,5 +41,6 @@ func (product ProductDto) ToProduct() Product {
 		Name:   product.Name,
 		Price:  product.Price,
 		Status: product.Status,
+		Sku:    product.Sku,
 	}
 }

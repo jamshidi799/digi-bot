@@ -22,8 +22,6 @@ func CreateNormalPriceChangeMsg(product model.ProductDto, newPrice int, oldPrice
 			Append(fmt.Sprintf("%s -> %s", utils.Number(oldPrice).AddComma(), utils.Number(newPrice).AddComma()))
 	}
 
-	output = output.Append(createProductDetailMsg(product)).AddNewLine()
-
 	return output.ToString()
 }
 
@@ -55,8 +53,6 @@ func CreatePreviewMsg(product model.ProductDto) string {
 		}
 	}
 
-	output = output.Append(createProductDetailMsg(product))
-
 	return output.ToString()
 }
 
@@ -67,8 +63,6 @@ func CreateNotAvailableMsg(product model.ProductDto) string {
 		Append(utils.String("ناموجود😱🔒").
 			Bold().
 			ToString())
-
-	output = output.Append(createProductDetailMsg(product)).AddNewLine()
 
 	return output.ToString()
 }
@@ -121,30 +115,6 @@ func CreateHelpMsg() string {
 		ToString()
 
 	return start + add + list + deleteAll
-}
-
-func createProductDetailMsg(product model.ProductDto) string {
-	output := utils.String("\n")
-	if product.Desc1 != "" {
-		output = output.
-			Append("🔹").
-			Append(product.Desc1).
-			AddNewLine()
-	}
-	if product.Desc2 != "" {
-		output = output.
-			Append("🔹").
-			Append(product.Desc2).
-			AddNewLine()
-	}
-	if product.Desc3 != "" {
-		output = output.
-			Append("🔹").
-			Append(product.Desc3).
-			AddNewLine()
-	}
-
-	return output.ToString()
 }
 
 func CreateProductListMsg(products []string) string {

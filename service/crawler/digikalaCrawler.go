@@ -25,14 +25,14 @@ func (DigikalaCrawler) Crawl(url string) (dto model.ProductDto, err error) {
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
-	var product product
+	var product digikalaProduct
 	err = njson.Unmarshal(body, &product)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	dto.Id = product.ID
+	dto.Sku = product.Sku
 	dto.Url = url
 	dto.Name = product.Title
 	dto.Price = product.Price
@@ -48,8 +48,12 @@ func (DigikalaCrawler) Crawl(url string) (dto model.ProductDto, err error) {
 	return dto, err
 }
 
-type product struct {
-	ID         int    `njson:"data.product.id"`
+func (c *DigikalaCrawler) GetDomain() string {
+	return "digikala.com"
+}
+
+type digikalaProduct struct {
+	Sku        string `njson:"data.product.id"`
 	Title      string `njson:"data.product.title_fa"`
 	Image      string `njson:"data.product.images.main.url.0"`
 	Price      int    `njson:"data.product.default_variant.price.selling_price"`

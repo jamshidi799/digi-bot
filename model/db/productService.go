@@ -15,7 +15,6 @@ func AddProductToDB(product model.ProductDto, senderId int) (err error) {
 
 	result := database.Where(productModel).Find(&productModel)
 	if result.RowsAffected == 0 {
-		productModel.RealID = product.Id
 		database.Create(&productModel)
 	}
 

@@ -8,15 +8,15 @@ import (
 	"time"
 )
 
-type DigikalaChangeDetector struct {
-	crawler.DigikalaCrawler
+type TorobChangeDetector struct {
+	crawler.TorobCrawler
 }
 
-func (detector *DigikalaChangeDetector) getProducts() []model.Product {
+func (detector *TorobChangeDetector) getProducts() []model.Product {
 	return db.GetAllProductByDomain(detector.GetDomain())
 }
 
-func (detector *DigikalaChangeDetector) Detect(handler func(new model.ProductDto, old model.Product)) {
+func (detector *TorobChangeDetector) Detect(handler func(new model.ProductDto, old model.Product)) {
 	for _, product := range detector.getProducts() {
 		newProduct, err := detector.Crawl(product.Url)
 
