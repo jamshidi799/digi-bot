@@ -8,5 +8,4 @@ import (
 type ChangeDetector interface {
 	crawler.Crawler
 	Detect(handler func(new model.ProductDto, old model.Product))
-	getProducts() []model.Product
 }

@@ -14,42 +14,38 @@ type DigikalaCrawler struct {
 }
 
 func (DigikalaCrawler) Crawl(url string) (dto model.ProductDto, err error) {
-	channel := make(chan model.ProductDto, 1)
+	regex := regexp.MustCompile(`.*dkp-(\d*).*`)
+	id := regex.FindStringSubmatch(url)[1]
 
-	go func() {
-		defer close(channel)
-		regex := regexp.MustCompile(`.*dkp-(\d*).*`)
-		id := regex.FindStringSubmatch(url)[1]
+	res, err := http.Get(fmt.Sprintf("https://api.digikala.com/v1/product/%s/", id))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer res.Body.Close()
 
-		res, err := http.Get(fmt.Sprintf("https://api.digikala.com/v1/product/%s/", id))
-		if err != nil {
-			log.Fatalln(err)
-		}
-		defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	var product product
+	err = njson.Unmarshal(body, &product)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
-		body, err := ioutil.ReadAll(res.Body)
-		var product product
-		err = njson.Unmarshal(body, &product)
-		if err != nil {
-			log.Fatalln(err)
-		}
+	dto.Id = product.ID
+	dto.Url = url
+	dto.Name = product.Title
+	dto.Price = product.Price
+	dto.OldPrice = product.OldPrice
 
-		dto.Id = product.ID
-		dto.Url = url
-		dto.Name = product.Title
-		dto.Price = product.Price
-		dto.OldPrice = product.OldPrice
+	dto.Status = 1
+	if dto.Price == 0 {
+		dto.Status = 0
+	}
 
-		dto.Status = 1
-		if dto.Price == 0 {
-			dto.Status = 0
-		}
+	fmt.Printf("%+v\n", dto)
 
-		fmt.Printf("%+v\n", dto)
-		channel <- dto
-	}()
-
-	return <-channel, err
+	return dto, err
 }
 
 type product struct {

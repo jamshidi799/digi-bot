@@ -236,6 +236,7 @@ func getProductSelector(productId int) *tb.ReplyMarkup {
 	productIdStr := strconv.Itoa(productId)
 	selector := &tb.ReplyMarkup{}
 	btnGraph := selector.Data("نمودار قیمت", "graph", productIdStr)
+	test := selector.URL("test", "google.com")
 	btnDelete := selector.Data("حذف", "delete", productIdStr)
 	btnSetting := selector.Data("تنظیمات", "setting", productIdStr)
 
@@ -243,6 +244,7 @@ func getProductSelector(productId int) *tb.ReplyMarkup {
 		selector.Row(btnGraph, btnDelete),
 		selector.Row(btnSetting),
 	)
+	selector.Reply(selector.Row(test))
 	return selector
 }
 
