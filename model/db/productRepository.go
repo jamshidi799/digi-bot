@@ -5,12 +5,6 @@ import (
 	"fmt"
 )
 
-func GetAllProduct() []model.Product {
-	var products []model.Product
-	database.Find(&products)
-	return products
-}
-
 func GetAllProductByUserId(userId int) []string {
 	var products []string
 
