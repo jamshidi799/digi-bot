@@ -63,7 +63,6 @@ func (tlBot TelegramBot) callHandlers() {
 	tlBot.handleHelp()
 	tlBot.handleList()
 	tlBot.handleGraph()
-	tlBot.handleSetting()
 }
 
 func (tlBot TelegramBot) handleStart() {
@@ -99,18 +98,15 @@ func (tlBot TelegramBot) handleAdd() {
 			if err != nil {
 				return c.Send(err.Error())
 			}
-			err = db.AddProductToDB(product, int(c.Sender().ID))
-			if err != nil {
-				return c.Send(err.Error())
-			} else {
-				message := service.CreatePreviewMsg(product)
-				return c.Send(
-					message,
-					&tele.SendOptions{
-						ParseMode:   "HTML",
-						ReplyMarkup: getProductSelector(product.Id),
-					})
-			}
+
+			productId := db.AddProductToDB(product, int(c.Sender().ID))
+			message := service.CreatePreviewMsg(product)
+			return c.Send(
+				message,
+				&tele.SendOptions{
+					ParseMode:   "HTML",
+					ReplyMarkup: getProductSelector(productId),
+				})
 		})
 		return err
 	})
@@ -160,7 +156,7 @@ func (tlBot TelegramBot) handleGraph() {
 		commandLogs("graph", c.Sender().ID)
 		imagePath, err := db.GetGraphPicName(c.Data())
 		if err != nil {
-			err := c.Reply(err)
+			err := c.Reply(err.Error())
 			if err != nil {
 				return err
 			}
@@ -176,46 +172,8 @@ func (tlBot TelegramBot) handleGraph() {
 	})
 }
 
-func (tlBot TelegramBot) handleSetting() {
-	bot := tlBot.bot
-
-	selector := &tele.ReplyMarkup{}
-	btnSetting := selector.Data("تنظیمات", "setting")
-	btnOne := selector.Data("1", "one")
-	btnTwo := selector.Data("2", "two")
-
-	bot.Handle(&btnSetting, func(c tele.Context) error {
-		commandLogs("setting", c.Sender().ID)
-		msg := service.CreateChangeSettingGuide()
-		productId := c.Data()
-		return c.Reply(msg, &tele.SendOptions{
-			ParseMode:   "HTML",
-			ReplyMarkup: getProductSettingSelector(productId),
-		})
-	})
-
-	bot.Handle(&btnOne, func(c tele.Context) error {
-		productId := c.Data()
-		userId := c.Sender().ID
-		msg := db.UpdateStatus(1, productId, userId)
-		return c.Reply(msg, &tele.SendOptions{
-			ParseMode: "HTML",
-		})
-	})
-
-	bot.Handle(&btnTwo, func(c tele.Context) error {
-		productId := c.Data()
-		userId := c.Sender().ID
-		msg := db.UpdateStatus(2, productId, userId)
-
-		return c.Reply(msg, &tele.SendOptions{
-			ParseMode: "HTML",
-		})
-	})
-}
-
-func (tlBot TelegramBot) SendUpdateForUsers(productId int, message string, available bool, changeLevel int) {
-	usersId := db.GetAllUsersIdByProductId(productId, changeLevel)
+func (tlBot TelegramBot) SendUpdateForUsers(productId int, message string, available bool) {
+	usersId := db.GetAllUsersIdByProductId(productId)
 
 	rand.Seed(time.Now().UnixNano())
 	for _, userId := range usersId {
@@ -241,23 +199,9 @@ func getProductSelector(productId int) *tele.ReplyMarkup {
 	selector := &tele.ReplyMarkup{}
 	btnGraph := selector.Data("نمودار قیمت", "graph", productIdStr)
 	btnDelete := selector.Data("حذف", "delete", productIdStr)
-	btnSetting := selector.Data("تنظیمات", "setting", productIdStr)
 
 	selector.Inline(
 		selector.Row(btnGraph, btnDelete),
-		selector.Row(btnSetting),
-	)
-	return selector
-}
-
-func getProductSettingSelector(productId string) *tele.ReplyMarkup {
-	selector := &tele.ReplyMarkup{}
-	btnOne := selector.Data("1", "one", productId)
-	btnTwo := selector.Data("2", "two", productId)
-	//btnThree := selector.Data("3", "three", productId)
-
-	selector.Inline(
-		selector.Row(btnOne, btnTwo),
 	)
 	return selector
 }

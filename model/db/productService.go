@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func AddProductToDB(product model.ProductDto, senderId int) (err error) {
+func AddProductToDB(product model.ProductDto, senderId int) int {
 	productModel := product.ToProduct()
 
 	result := database.Where(productModel).Find(&productModel)
@@ -18,11 +18,11 @@ func AddProductToDB(product model.ProductDto, senderId int) (err error) {
 		database.Create(&productModel)
 	}
 
-	pivot := model.Pivot{UserID: senderId, ProductID: productModel.ID, NotificationSetting: 1}
+	pivot := model.Pivot{UserID: senderId, ProductID: productModel.ID}
 	database.Create(&pivot)
 
 	log.Printf("new product added: %s\n", product.Name)
-	return
+	return productModel.ID
 }
 
 func UpdateProduct(product model.Product, newProduct model.ProductDto) {

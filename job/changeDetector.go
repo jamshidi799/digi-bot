@@ -20,7 +20,7 @@ func run(c crawler.Crawler) {
 	for {
 		log.Printf("--------------- Scheduler for %v --------------------\n", c.GetDomain())
 		updateCount := Detect(c)
-		log.Printf("compare finished. num of updates: %d \n", updateCount)
+		log.Printf("compare finished. num of updates of %v: %d \n", c.GetDomain(), updateCount)
 		log.Printf("--------------- %v done --------------------\n", c.GetDomain())
 		time.Sleep(time.Hour * 2)
 	}
@@ -50,30 +50,25 @@ func Detect(c crawler.Crawler) int {
 }
 
 func handleChange(newProduct model.ProductDto, product model.Product) (isChanged bool) {
-	message, isChanged, changeLevel := compare(newProduct, product.ToDto())
+	message, isChanged := compare(newProduct, product.ToDto())
 	if !isChanged {
 		return
 	}
 	log.Printf("old price: %d, new price: %d", product.Price, newProduct.Price)
 	available := isChanged && newProduct.Status != 0
-	bot.GetTelegramBot().SendUpdateForUsers(product.ID, message, available, changeLevel)
+	bot.GetTelegramBot().SendUpdateForUsers(product.ID, message, available)
 	db.UpdateProduct(product, newProduct)
 	return
 }
 
-func compare(newProduct model.ProductDto, oldProduct model.ProductDto) (message string, isChanged bool, changeLevel int) {
+func compare(newProduct model.ProductDto, oldProduct model.ProductDto) (message string, isChanged bool) {
 	if newProduct.Price == oldProduct.Price {
-		return "", false, 0
+		return "", false
 	}
 
 	if newProduct.Price == 0 {
-		return service.CreateNotAvailableMsg(newProduct), true, 1
+		return service.CreateNotAvailableMsg(newProduct), true
 	}
 
-	changeLevel = 1
-	if newProduct.Status == 2 {
-		changeLevel = 2
-	}
-
-	return service.CreateNormalPriceChangeMsg(newProduct, newProduct.Price, oldProduct.Price), true, changeLevel
+	return service.CreateNormalPriceChangeMsg(newProduct, newProduct.Price, oldProduct.Price), true
 }

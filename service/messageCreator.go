@@ -127,25 +127,3 @@ func CreateProductListMsg(products []string) string {
 	}
 	return str.AddNewLine().AddNewLine().ToString()
 }
-
-func CreateChangeSettingGuide() string {
-	output := utils.String("کی نوتیف بیاد؟").
-		Bold().
-		AddNewLine().
-		AddNewLine().
-		Append("۱: هر تغییری توی قیمت رو بگم(حالت دیفالت)").
-		AddNewLine().
-		AddNewLine().
-		Append("۲: هر وقت شگفت‌انگیز شد بگم").
-		ToString()
-
-	return output
-}
-
-func CreateSuccessText() string {
-	return "✅ با موفقیت انجام شد"
-}
-
-func CreateErrorText() string {
-	return "❌ خطا در انجام عملیات"
-}

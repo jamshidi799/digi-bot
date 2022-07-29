@@ -16,11 +16,11 @@ func GetUserById(userId int64) model.User {
 	return user
 }
 
-func GetAllUsersIdByProductId(productId int, notificationSetting int) []int64 {
+func GetAllUsersIdByProductId(productId int) []int64 {
 	var usersId []int64
 	database.
 		Table("pivots").
-		Where("product_id = ? AND notification_setting <= ?", productId, notificationSetting).
+		Where("product_id = ?", productId).
 		Select("user_id").
 		Distinct("user_id").
 		Find(&usersId)
