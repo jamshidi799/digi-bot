@@ -4,6 +4,8 @@ import (
 	"digi-bot/model/db"
 	"digi-bot/service"
 	"digi-bot/service/crawler"
+	"digi-bot/service/kafka"
+	"encoding/json"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
@@ -100,6 +102,10 @@ func (tlBot TelegramBot) handleAdd() {
 			}
 
 			productId := db.AddProductToDB(product, int(c.Sender().ID))
+
+			data, _ := json.Marshal(product)
+			kafka.Send("products", strconv.Itoa(productId), data)
+
 			message := service.CreatePreviewMsg(product)
 			return c.Send(
 				message,

@@ -6,7 +6,10 @@ import (
 	"digi-bot/service"
 	"digi-bot/service/bot"
 	"digi-bot/service/crawler"
+	"digi-bot/service/kafka"
+	"encoding/json"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -50,6 +53,9 @@ func Detect(c crawler.Crawler) int {
 }
 
 func handleChange(newProduct model.ProductDto, product model.Product) (isChanged bool) {
+	data, _ := json.Marshal(newProduct)
+	kafka.Send("products", strconv.Itoa(product.ID), data)
+
 	message, isChanged := compare(newProduct, product.ToDto())
 	if !isChanged {
 		return
@@ -58,6 +64,7 @@ func handleChange(newProduct model.ProductDto, product model.Product) (isChanged
 	available := isChanged && newProduct.Status != 0
 	bot.GetTelegramBot().SendUpdateForUsers(product.ID, message, available)
 	db.UpdateProduct(product, newProduct)
+
 	return
 }
 
