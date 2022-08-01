@@ -16,3 +16,4 @@ images/
 
 test.go
 config/local.yml
+.idea
