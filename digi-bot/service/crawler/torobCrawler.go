@@ -25,6 +25,7 @@ func (TorobCrawler) Crawl(url string) (dto model.ProductDto, err error) {
 			dto.Name = product.Name
 			dto.Price = product.LowPrice
 			dto.Sku = product.Sku
+			dto.Image = product.Image
 
 			dto.Status = 1
 			if dto.Price == 0 {

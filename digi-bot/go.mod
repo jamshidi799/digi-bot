@@ -9,6 +9,8 @@ require (
 	github.com/m7shapan/njson v1.0.4
 	github.com/wcharczuk/go-chart/v2 v2.1.0
 	golang.org/x/text v0.3.6
+	google.golang.org/grpc v1.46.0
+	google.golang.org/protobuf v1.28.0
 	gopkg.in/confluentinc/confluent-kafka-go.v1 v1.8.2
 	gopkg.in/telebot.v3 v3.0.0
 	gorm.io/driver/mysql v1.1.1
@@ -38,6 +40,7 @@ require (
 	golang.org/x/crypto v0.0.0-20201203163018-be400aefbc4c // indirect
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
+	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	google.golang.org/genproto v0.0.0-20220503193339-ba3ae3f07e29 // indirect
 )

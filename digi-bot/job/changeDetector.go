@@ -53,8 +53,9 @@ func Detect(c crawler.Crawler) int {
 }
 
 func handleChange(newProduct model.ProductDto, product model.Product) (isChanged bool) {
+	newProduct.Id = product.ID
 	data, _ := json.Marshal(newProduct)
-	kafka.Send("products", strconv.Itoa(product.ID), data)
+	kafka.Send("products", strconv.Itoa(newProduct.Id), data)
 
 	message, isChanged := compare(newProduct, product.ToDto())
 	if !isChanged {

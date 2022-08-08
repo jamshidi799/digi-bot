@@ -5,6 +5,7 @@ import (
 	"digi-bot/service"
 	"digi-bot/service/crawler"
 	"digi-bot/service/kafka"
+	"digi-bot/service/search"
 	"encoding/json"
 	"fmt"
 	"github.com/joho/godotenv"
@@ -65,6 +66,7 @@ func (tlBot TelegramBot) callHandlers() {
 	tlBot.handleHelp()
 	tlBot.handleList()
 	tlBot.handleGraph()
+	tlBot.handleQuery()
 }
 
 func (tlBot TelegramBot) handleStart() {
@@ -103,6 +105,7 @@ func (tlBot TelegramBot) handleAdd() {
 
 			productId := db.AddProductToDB(product, int(c.Sender().ID))
 
+			product.Id = productId
 			data, _ := json.Marshal(product)
 			kafka.Send("products", strconv.Itoa(productId), data)
 
@@ -176,6 +179,39 @@ func (tlBot TelegramBot) handleGraph() {
 		log.Println(imagePath)
 		return err
 	})
+}
+
+func (tlBot TelegramBot) handleQuery() {
+	bot := tlBot.bot
+
+	bot.Handle(tele.OnQuery, func(c tele.Context) error {
+
+		response := search.Query(c.Data())
+		results := make(tele.Results, len(response.Products))
+		for i, product := range response.Products {
+			message := service.CreatePreviewMsg(product.ToDto())
+
+			result := &tele.ArticleResult{
+				URL:         product.Image,
+				Text:        message,
+				Title:       product.Title,
+				Description: strconv.Itoa(int(product.Price)),
+				ThumbURL:    product.Image,
+			}
+
+			results[i] = result
+			results[i].SetResultID(strconv.Itoa(i))
+			results[i].SetReplyMarkup(getProductSelector(int(product.Id)))
+			results[i].SetParseMode("HTML")
+		}
+
+		return c.Answer(&tele.QueryResponse{
+			Results:    results,
+			CacheTime:  60, // a minute
+			IsPersonal: false,
+		})
+	})
+
 }
 
 func (tlBot TelegramBot) SendUpdateForUsers(productId int, message string, available bool) {

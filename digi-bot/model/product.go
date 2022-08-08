@@ -11,6 +11,7 @@ type Product struct {
 	Url       string
 	Name      string
 	Price     int
+	Image     string
 	Status    int
 	Pivots    []Pivot
 	Histories []History `gorm:"foreignKey:ProductID"`
@@ -33,6 +34,7 @@ type ProductDto struct {
 	OldPrice int
 	Status   int
 	Sku      string
+	Image    string
 }
 
 func (product ProductDto) ToProduct() Product {
@@ -42,5 +44,6 @@ func (product ProductDto) ToProduct() Product {
 		Price:  product.Price,
 		Status: product.Status,
 		Sku:    product.Sku,
+		Image:  product.Image,
 	}
 }
