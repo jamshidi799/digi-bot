@@ -7,5 +7,7 @@ import (
 
 func main() {
 	elastic.InitElasticsearch()
-	consumer.Consume()
+	go consumer.Consume()
+
+	StartServer()
 }
