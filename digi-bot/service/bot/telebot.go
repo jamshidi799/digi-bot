@@ -5,7 +5,6 @@ import (
 	"digi-bot/service"
 	"digi-bot/service/crawler"
 	"digi-bot/service/kafka"
-	"digi-bot/service/search"
 	"encoding/json"
 	"fmt"
 	"github.com/joho/godotenv"
@@ -186,16 +185,18 @@ func (tlBot TelegramBot) handleQuery() {
 
 	bot.Handle(tele.OnQuery, func(c tele.Context) error {
 
-		response := search.Query(c.Data())
-		results := make(tele.Results, len(response.Products))
-		for i, product := range response.Products {
-			message := service.CreatePreviewMsg(product.ToDto())
+		//response := search.Query(c.Data())
+
+		products, _ := db.GetAllProductByName(c.Data())
+		results := make(tele.Results, len(products))
+		for i, product := range products {
+			message := service.CreatePreviewMsg(product)
 
 			result := &tele.ArticleResult{
 				URL:         product.Image,
 				Text:        message,
-				Title:       product.Title,
-				Description: strconv.Itoa(int(product.Price)),
+				Title:       product.Name,
+				Description: strconv.Itoa(product.Price),
 				ThumbURL:    product.Image,
 			}
 

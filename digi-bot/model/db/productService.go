@@ -97,3 +97,18 @@ func GetGraphPicName(productId string) (string, error) {
 
 	return imagePath, nil
 }
+
+func GetAllProductByName(name string) ([]model.ProductDto, error) {
+	var m []model.Product
+	err := database.
+		Table("products").
+		Where("name like ?", "%"+name+"%").
+		Order("updated_at").Scan(&m).Error
+
+	list := make([]model.ProductDto, len(m))
+	for i, product := range m {
+		list[i] = product.ToDto()
+	}
+
+	return list, err
+}
