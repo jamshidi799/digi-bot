@@ -20,10 +20,12 @@ func Init() *gorm.DB {
 		log.Println("Error loading .env file")
 	}
 
+	DbUsername := os.Getenv("DB_USERNAME")
 	DbPassword := os.Getenv("DB_PASSWORD")
 	DbHost := os.Getenv("DB_HOST")
+	DbName := os.Getenv("DB_NAME")
 
-	dsn := fmt.Sprintf("root:%s@tcp(%s:3306)/digiBot?charset=utf8mb4&parseTime=True&loc=Local", DbPassword, DbHost)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=true", DbUsername, DbPassword, DbHost, DbName)
 	//println(dsn)
 
 	for i := 1; i <= 5; i++ {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"digi-bot/job"
 	"digi-bot/model/db"
 	"digi-bot/service/bot"
 	"digi-bot/service/kafka"
@@ -21,7 +22,7 @@ func main() {
 	group.Wait()
 
 	group.Add(1)
-	//job.ChangeDetectorJob()
+	job.ChangeDetectorJob()
 	group.Wait()
 
 }
