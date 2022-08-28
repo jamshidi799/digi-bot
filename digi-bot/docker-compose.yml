@@ -5,21 +5,23 @@ services:
     image: mysql
     restart: always
     volumes:
-      - todo-mysql-data:/var/lib/mysql
+      - mysql:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: mohammad79
-      MYSQL_DATABASE: digiBot
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+      MYSQL_DATABASE: $DB_NAME
     ports:
-    - 3306:3306
+      - "3306:3306"
 
   app:
     image: digibot
     restart: always
     environment:
-      DB_HOST: mysql
-      DB_PASSWORD: mohammad79
-      BOT_TOKEN: 1767506686:AAFP-w40DbrbhhVQLk6g2aGz3KqhF5oZugI
+      DB_HOST: $DB_HOST
+      DB_USERNAME: $DB_USERNAME
+      DB_PASSWORD: $DB_PASSWORD
+      DB_NAME: $DB_NAME
+      BOT_TOKEN: $BOT_TOKEN
 
 
 volumes:
-  todo-mysql-data:
+  mysql:

@@ -15,5 +15,4 @@ images/
 *.out
 
 test.go
-config/local.yml
 .idea
