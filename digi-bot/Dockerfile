@@ -1,32 +1,27 @@
-# Two-stage build:
-#    first  FROM prepares a binary file in full environment ~780MB
-#    second FROM takes only binary file ~10MB
+FROM golang:1.18-alpine AS build_base
 
-FROM golang:1.16-alpine AS builder
+RUN apk add build-base
+RUN apk add --no-cache git
 
-RUN apk update && apk add --no-cache git ca-certificates && update-ca-certificates
+# Set the Current Working Directory inside the container
+WORKDIR /tmp/go-sample-app
 
-WORKDIR "/go/src/github.com/your-login/your-project"
-
-COPY go.mod ./
-COPY go.sum ./
+# We want to populate the module cache based on the go.{mod,sum} files.
+COPY go.mod .
+COPY go.sum .
 
 RUN go mod download
 
-COPY . ./
+COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build  -o /your-app
+# Build the Go app
+RUN go build -o ./out/go-sample-app -tags musl .
 
-CMD ["/your-app"]
+# Start fresh from a smaller image
+FROM alpine:3.9
+RUN apk add ca-certificates
 
+COPY --from=build_base /tmp/go-sample-app/out/go-sample-app /app/go-sample-app
 
-
-
-#########
-# second stage to obtain a very small image
-FROM scratch
-
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /your-app .
-
-CMD ["/your-app"]
+# Run the binary program produced by `go install`
+CMD ["/app/go-sample-app"]

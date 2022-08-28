@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/confluentinc/confluent-kafka-go v1.9.1
 	github.com/elastic/go-elasticsearch/v8 v8.3.0
-	github.com/google/uuid v1.3.0
 	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.28.0
 )
