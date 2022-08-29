@@ -35,8 +35,8 @@ func (DigikalaCrawler) Crawl(url string) (dto model.ProductDto, err error) {
 	dto.Sku = product.Sku
 	dto.Url = url
 	dto.Name = product.Title
-	dto.Price = product.Price
-	dto.OldPrice = product.OldPrice
+	dto.Price = product.Price / 10
+	dto.OldPrice = product.OldPrice / 10
 	dto.Image = product.Image
 
 	dto.Status = 1
