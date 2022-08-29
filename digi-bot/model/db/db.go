@@ -24,8 +24,9 @@ func Init() *gorm.DB {
 	DbPassword := os.Getenv("DB_PASSWORD")
 	DbHost := os.Getenv("DB_HOST")
 	DbName := os.Getenv("DB_NAME")
+	DbTlsEnabled := os.Getenv("DB_TLS_ENABLED")
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=false", DbUsername, DbPassword, DbHost, DbName)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=%s", DbUsername, DbPassword, DbHost, DbName, DbTlsEnabled)
 	//println(dsn)
 
 	for i := 1; i <= 5; i++ {
