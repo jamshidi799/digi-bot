@@ -23,7 +23,7 @@ func (TorobCrawler) Crawl(url string) (dto model.ProductDto, err error) {
 			}
 			dto.Url = url
 			dto.Name = product.Name
-			dto.Price = product.LowPrice
+			dto.Price = product.LowPrice / 10
 			dto.Sku = product.Sku
 			dto.Image = product.Image
 
