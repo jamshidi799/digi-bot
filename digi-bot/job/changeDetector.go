@@ -21,10 +21,10 @@ func ChangeDetectorJob() {
 
 func run(c crawler.Crawler) {
 	for {
-		log.Printf("--------------- Scheduler for %v --------------------\n", c.GetDomain())
+		log.Printf("scheduler for %v started\n", c.GetDomain())
 		updateCount := Detect(c)
 		log.Printf("compare finished. num of updates of %v: %d \n", c.GetDomain(), updateCount)
-		log.Printf("--------------- %v done --------------------\n", c.GetDomain())
+		log.Printf("%v scheduler done\n", c.GetDomain())
 		time.Sleep(time.Hour * 2)
 	}
 }

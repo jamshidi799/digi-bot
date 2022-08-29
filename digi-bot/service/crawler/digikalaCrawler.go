@@ -44,8 +44,6 @@ func (DigikalaCrawler) Crawl(url string) (dto model.ProductDto, err error) {
 		dto.Status = 0
 	}
 
-	fmt.Printf("%+v\n", dto)
-
 	return dto, err
 }
 

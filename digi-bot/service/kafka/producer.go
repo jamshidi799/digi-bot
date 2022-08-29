@@ -39,8 +39,8 @@ func InitProducer() {
 				if ev.TopicPartition.Error != nil {
 					fmt.Printf("Failed to deliver message: %v\n", ev.TopicPartition)
 				} else {
-					fmt.Printf("Produced event to topic %s: key = %-10s value = %s\n",
-						*ev.TopicPartition.Topic, string(ev.Key), string(ev.Value))
+					fmt.Printf("Produced event to topic %s: key = %-10s\n",
+						*ev.TopicPartition.Topic, string(ev.Key))
 				}
 			}
 		}
