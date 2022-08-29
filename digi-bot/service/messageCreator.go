@@ -114,7 +114,17 @@ func CreateHelpMsg() string {
 		AddNewLine().
 		ToString()
 
-	return start + add + list + deleteAll
+	query := utils.String("@ProductBookmarkBot {query}").
+		Bold().
+		AddNewLine().
+		Append("با این دستور، می‌توانید روی همه محصولات موجود سرچ کنید.").
+		AddNewLine().
+		Append("مثال:").
+		AddNewLine().
+		Append("@ProductBookmarkBot apple").
+		ToString()
+
+	return start + add + list + deleteAll + query
 }
 
 func CreateProductListMsg(products []string) string {
