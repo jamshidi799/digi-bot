@@ -73,7 +73,7 @@ func (tlBot TelegramBot) handleStart() {
 		commandLogs("start", c.Sender().ID)
 		db.SaveUser(c.Sender())
 
-		return c.Send(c.Sender(), service.CreateHelpMsg(), &tele.SendOptions{
+		return c.Send(service.CreateHelpMsg(), &tele.SendOptions{
 			ParseMode: "HTML",
 		})
 	})

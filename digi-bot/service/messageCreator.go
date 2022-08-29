@@ -119,6 +119,11 @@ func CreateHelpMsg() string {
 
 func CreateProductListMsg(products []string) string {
 	str := utils.String("")
+
+	if len(products) == 0 {
+		return str.Append("لیست شما خالی می‌باشد").ToString()
+	}
+
 	for _, product := range products {
 		str = str.Append("🔹").
 			Append(product).
