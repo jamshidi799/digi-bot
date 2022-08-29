@@ -23,6 +23,7 @@ func (product Product) ToDto() ProductDto {
 		Url:    product.Url,
 		Price:  product.Price,
 		Status: product.Status,
+		Image:  product.Image,
 	}
 }
 
