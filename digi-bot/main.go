@@ -4,15 +4,14 @@ import (
 	"digi-bot/job"
 	"digi-bot/model/db"
 	"digi-bot/service/bot"
-	"digi-bot/service/kafka"
 	"sync"
 )
 
 func main() {
 	db.Init()
 
-	go kafka.InitProducer()
-	defer kafka.FlushAndClose()
+	//go kafka.InitProducer()
+	//defer kafka.FlushAndClose()
 
 	var group sync.WaitGroup
 	group.Add(1)

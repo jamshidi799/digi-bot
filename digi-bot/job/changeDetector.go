@@ -6,10 +6,8 @@ import (
 	"digi-bot/service"
 	"digi-bot/service/bot"
 	"digi-bot/service/crawler"
-	"digi-bot/service/kafka"
-	"encoding/json"
 	"log"
-	"strconv"
+	"math"
 	"time"
 )
 
@@ -54,8 +52,8 @@ func Detect(c crawler.Crawler) int {
 
 func handleChange(newProduct model.ProductDto, product model.Product) (isChanged bool) {
 	newProduct.Id = product.ID
-	data, _ := json.Marshal(newProduct)
-	kafka.Send("products", strconv.Itoa(newProduct.Id), data)
+	//data, _ := json.Marshal(newProduct)
+	//kafka.Send("products", strconv.Itoa(newProduct.Id), data)
 
 	message, isChanged := compare(newProduct, product.ToDto())
 	if !isChanged {
@@ -70,7 +68,8 @@ func handleChange(newProduct model.ProductDto, product model.Product) (isChanged
 }
 
 func compare(newProduct model.ProductDto, oldProduct model.ProductDto) (message string, isChanged bool) {
-	if newProduct.Price == oldProduct.Price {
+	var comparePrice = (math.Abs(float64(newProduct.Price-oldProduct.Price)) / float64(oldProduct.Price)) * 100
+	if comparePrice < 5 {
 		return "", false
 	}
 

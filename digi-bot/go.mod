@@ -11,7 +11,7 @@ require (
 	golang.org/x/text v0.3.6
 	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.28.0
-	gopkg.in/confluentinc/confluent-kafka-go.v1 v1.8.2
+	//gopkg.in/confluentinc/confluent-kafka-go.v1 v1.8.2
 	gopkg.in/telebot.v3 v3.0.0
 	gorm.io/driver/mysql v1.1.1
 	gorm.io/gorm v1.21.12
