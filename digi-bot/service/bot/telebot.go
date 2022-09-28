@@ -200,7 +200,7 @@ func (tlBot TelegramBot) handleQuery() {
 
 			results[i] = result
 			results[i].SetResultID(strconv.Itoa(i))
-			results[i].SetReplyMarkup(getProductSelector(int(product.Id)))
+			results[i].SetReplyMarkup(getProductUpdateSelector(int(product.Id)))
 			results[i].SetParseMode("HTML")
 		}
 
@@ -221,7 +221,7 @@ func (tlBot TelegramBot) SendUpdateForUsers(productId int, message string, avail
 		user := db.GetUserById(userId)
 		msg, _ := tlBot.bot.Send(user.ToTbUser(), message, &tele.SendOptions{
 			ParseMode:   "HTML",
-			ReplyMarkup: getProductSelector(productId),
+			ReplyMarkup: getProductUpdateSelector(productId),
 		})
 		if !available {
 			random := rand.Intn(5)
@@ -235,7 +235,7 @@ func (tlBot TelegramBot) SendUpdateForUsers(productId int, message string, avail
 	}
 }
 
-func getProductSelector(productId int) *tele.ReplyMarkup {
+func getProductUpdateSelector(productId int) *tele.ReplyMarkup {
 	productIdStr := strconv.Itoa(productId)
 	selector := &tele.ReplyMarkup{}
 	btnGraph := selector.Data("نمودار قیمت", "graph", productIdStr)
@@ -243,6 +243,19 @@ func getProductSelector(productId int) *tele.ReplyMarkup {
 
 	selector.Inline(
 		selector.Row(btnGraph, btnDelete),
+	)
+	return selector
+}
+
+func getProductSelector(productId int) *tele.ReplyMarkup {
+	productIdStr := strconv.Itoa(productId)
+	selector := &tele.ReplyMarkup{}
+	btnDiscount := selector.Data("هر تغییری را اطلاع دهبد", "discount", productIdStr)
+	btnDiscount50 := selector.Data("تخفیف50درصد", "50%discount", productIdStr)
+	btnDiscount25 := selector.Data("تخفیف25درصد", "25%discount", productIdStr)
+	selector.Inline(
+		selector.Row(btnDiscount50, btnDiscount25),
+		selector.Row(btnDiscount),
 	)
 	return selector
 }
