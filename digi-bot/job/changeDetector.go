@@ -68,13 +68,17 @@ func handleChange(newProduct model.ProductDto, product model.Product) (isChanged
 }
 
 func compare(newProduct model.ProductDto, oldProduct model.ProductDto) (message string, isChanged bool) {
+	if oldProduct.Price == 0 {
+		if newProduct.Price == 0 {
+			return "", false
+		} else {
+			return service.CreateNotAvailableMsg(newProduct), true
+		}
+	}
+
 	var comparePrice = (math.Abs(float64(newProduct.Price-oldProduct.Price)) / float64(oldProduct.Price)) * 100
 	if comparePrice < 5 {
 		return "", false
-	}
-
-	if newProduct.Price == 0 {
-		return service.CreateNotAvailableMsg(newProduct), true
 	}
 
 	return service.CreateNormalPriceChangeMsg(newProduct, newProduct.Price, oldProduct.Price), true
