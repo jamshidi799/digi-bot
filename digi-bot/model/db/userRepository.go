@@ -16,14 +16,15 @@ func GetUserById(userId int64) model.User {
 	return user
 }
 
-func GetAllUsersIdByProductId(productId int) []int64 {
-	var usersId []int64
+func GetAllPivotsByProductId(productId int) []model.UserIdAndDiscountDto {
+	var pivots []model.UserIdAndDiscountDto
+
 	database.
 		Table("pivots").
 		Where("product_id = ?", productId).
-		Select("user_id").
+		Select("user_id", "discount").
 		Distinct("user_id").
-		Find(&usersId)
+		Find(&pivots)
 
-	return usersId
+	return pivots
 }

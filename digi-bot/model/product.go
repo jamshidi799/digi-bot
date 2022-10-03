@@ -36,6 +36,7 @@ type ProductDto struct {
 	Status   int
 	Sku      string
 	Image    string
+	Discount int
 }
 
 func (product ProductDto) ToProduct() Product {

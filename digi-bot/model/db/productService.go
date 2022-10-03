@@ -25,6 +25,13 @@ func AddProductToDB(product model.ProductDto, senderId int) int {
 	return productModel.ID
 }
 
+func UpdateProductDiscount(productId int, userId int, discount int) {
+	var pivot model.Pivot
+	database.Where("user_id = ? AND product_id = ?", userId, productId).Find(&pivot)
+	pivot.Discount = discount
+	database.Save(&pivot)
+}
+
 func UpdateProduct(product model.Product, newProduct model.ProductDto) {
 	product.Price = newProduct.Price
 	product.Status = newProduct.Status

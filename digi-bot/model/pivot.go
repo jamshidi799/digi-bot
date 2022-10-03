@@ -7,4 +7,10 @@ type Pivot struct {
 	ID        int
 	UserID    int
 	ProductID int
+	Discount  int
+}
+
+type UserIdAndDiscountDto struct {
+	UserId   int
+	Discount int
 }

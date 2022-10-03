@@ -7,7 +7,6 @@ import (
 	"digi-bot/service/bot"
 	"digi-bot/service/crawler"
 	"log"
-	"math"
 	"time"
 )
 
@@ -61,7 +60,7 @@ func handleChange(newProduct model.ProductDto, product model.Product) (isChanged
 	}
 	log.Printf("old price: %d, new price: %d", product.Price, newProduct.Price)
 	available := isChanged && newProduct.Status != 0
-	bot.GetTelegramBot().SendUpdateForUsers(product.ID, message, available)
+	bot.GetTelegramBot().SendUpdateForUsers(product.ID, message, available, newProduct.Discount)
 	db.UpdateProduct(product, newProduct)
 
 	return
@@ -76,8 +75,12 @@ func compare(newProduct model.ProductDto, oldProduct model.ProductDto) (message 
 		}
 	}
 
-	var comparePrice = (math.Abs(float64(newProduct.Price-oldProduct.Price)) / float64(oldProduct.Price)) * 100
-	if comparePrice < 5 {
+	//var comparePrice = (math.Abs(float64(newProduct.Price-oldProduct.Price)) / float64(oldProduct.Price)) * 100
+	//if comparePrice < 5 {
+	//	return "", false
+	//}
+
+	if newProduct.Price == oldProduct.Price {
 		return "", false
 	}
 

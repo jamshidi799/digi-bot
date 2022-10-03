@@ -38,6 +38,7 @@ func (DigikalaCrawler) Crawl(url string) (dto model.ProductDto, err error) {
 	dto.Price = product.Price / 10
 	dto.OldPrice = product.OldPrice / 10
 	dto.Image = product.Image
+	dto.Discount = product.Discount
 
 	dto.Status = 1
 	if dto.Price == 0 {
@@ -58,4 +59,5 @@ type digikalaProduct struct {
 	Price      int    `njson:"data.product.default_variant.price.selling_price"`
 	OldPrice   int    `njson:"data.product.default_variant.price.rrp_price"`
 	OrderLimit int    `njson:"data.product.default_variant.price.order_limit"`
+	Discount   int    `njson:"data.product.default_variant.price.discount_percent"`
 }

@@ -64,6 +64,7 @@ func (tlBot TelegramBot) callHandlers() {
 	tlBot.handleList()
 	tlBot.handleGraph()
 	tlBot.handleQuery()
+	tlBot.handleDiscount()
 }
 
 func (tlBot TelegramBot) handleStart() {
@@ -152,6 +153,41 @@ func (tlBot TelegramBot) handleDelete() {
 	})
 }
 
+func (tlBot TelegramBot) handleDiscount() {
+	bot := tlBot.bot
+
+	selector := &tele.ReplyMarkup{}
+	btnDiscount := selector.Data("تخفیف", "discount")
+	bot.Handle(&btnDiscount, func(c tele.Context) error {
+		commandLogs("discount", c.Sender().ID)
+
+		productId, _ := strconv.Atoi(c.Data())
+		db.UpdateProductDiscount(productId, int(c.Sender().ID), 0)
+		return c.Reply("با موفقیت انجام شد", &tele.SendOptions{
+			ParseMode: "HTML",
+		})
+	})
+
+	btnDiscount25 := selector.Data("تخفیف 25%", "25discount")
+	bot.Handle(&btnDiscount25, func(c tele.Context) error {
+		commandLogs("25%discount", c.Sender().ID)
+		productId, _ := strconv.Atoi(c.Data())
+		db.UpdateProductDiscount(productId, int(c.Sender().ID), 25)
+		return c.Reply("با موفقیت انجام شد")
+	})
+
+	btnDiscount50 := selector.Data("تخفیف 50%", "50discount")
+	bot.Handle(&btnDiscount50, func(c tele.Context) error {
+		commandLogs("discount", c.Sender().ID)
+		productId, _ := strconv.Atoi(c.Data())
+		db.UpdateProductDiscount(productId, int(c.Sender().ID), 50)
+		return c.Reply("با موفقیت انجام شد", &tele.SendOptions{
+			ParseMode: "HTML",
+		})
+	})
+
+}
+
 func (tlBot TelegramBot) handleGraph() {
 	bot := tlBot.bot
 
@@ -213,12 +249,17 @@ func (tlBot TelegramBot) handleQuery() {
 
 }
 
-func (tlBot TelegramBot) SendUpdateForUsers(productId int, message string, available bool) {
-	usersId := db.GetAllUsersIdByProductId(productId)
+func (tlBot TelegramBot) SendUpdateForUsers(productId int, message string, available bool, discount int) {
+	pivots := db.GetAllPivotsByProductId(productId)
 
 	rand.Seed(time.Now().UnixNano())
-	for _, userId := range usersId {
-		user := db.GetUserById(userId)
+	for _, pivot := range pivots {
+
+		if pivot.Discount > discount {
+			continue
+		}
+
+		user := db.GetUserById(int64(pivot.UserId))
 		msg, _ := tlBot.bot.Send(user.ToTbUser(), message, &tele.SendOptions{
 			ParseMode:   "HTML",
 			ReplyMarkup: getProductUpdateSelector(productId),
@@ -251,8 +292,8 @@ func getProductSelector(productId int) *tele.ReplyMarkup {
 	productIdStr := strconv.Itoa(productId)
 	selector := &tele.ReplyMarkup{}
 	btnDiscount := selector.Data("هر تغییری را اطلاع دهبد", "discount", productIdStr)
-	btnDiscount50 := selector.Data("تخفیف50درصد", "50%discount", productIdStr)
-	btnDiscount25 := selector.Data("تخفیف25درصد", "25%discount", productIdStr)
+	btnDiscount50 := selector.Data("تخفیف50درصد", "50discount", productIdStr)
+	btnDiscount25 := selector.Data("تخفیف25درصد", "25discount", productIdStr)
 	selector.Inline(
 		selector.Row(btnDiscount50, btnDiscount25),
 		selector.Row(btnDiscount),
