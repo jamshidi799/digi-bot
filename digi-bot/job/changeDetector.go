@@ -23,7 +23,7 @@ func run(c crawler.Crawler) {
 		updateCount := Detect(c)
 		log.Printf("compare finished. num of updates of %v: %d \n", c.GetDomain(), updateCount)
 		log.Printf("%v scheduler done\n", c.GetDomain())
-		time.Sleep(time.Hour * 2)
+		time.Sleep(time.Minute * 20)
 	}
 }
 
@@ -56,10 +56,14 @@ func handleChange(newProduct model.ProductDto, product model.Product) (isChanged
 	//kafka.Send("products", strconv.Itoa(newProduct.Id), data)
 
 	message, isChanged := compare(newProduct, product.ToDto())
+
+	db.UpdateProduct(product, newProduct)
+	log.Printf("old price: %d, new price: %d", product.Price, newProduct.Price)
+	return isChanged
+
 	if !isChanged {
 		return
 	}
-	log.Printf("old price: %d, new price: %d", product.Price, newProduct.Price)
 	available := isChanged && newProduct.Status != 0
 	bot.GetTelegramBot().SendUpdateForUsers(product.ID, message, available)
 	db.UpdateProduct(product, newProduct)
@@ -77,7 +81,7 @@ func compare(newProduct model.ProductDto, oldProduct model.ProductDto) (message 
 	}
 
 	var comparePrice = (math.Abs(float64(newProduct.Price-oldProduct.Price)) / float64(oldProduct.Price)) * 100
-	if comparePrice < 5 {
+	if comparePrice < 1 {
 		return "", false
 	}
 
