@@ -1,7 +1,7 @@
 FROM golang:1.18-alpine AS build_base
 
-RUN apk add build-base
-RUN apk add --no-cache git
+#RUN apk add build-base
+#RUN apk add --no-cache git
 
 # Set the Current Working Directory inside the container
 WORKDIR /tmp/go-sample-app
