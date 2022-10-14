@@ -62,7 +62,7 @@ func (tlBot TelegramBot) callHandlers() {
 	tlBot.handleDelete()
 	tlBot.handleHelp()
 	tlBot.handleList()
-	tlBot.handleGraph()
+	//tlBot.handleGraph()
 	tlBot.handleQuery()
 }
 
@@ -152,31 +152,31 @@ func (tlBot TelegramBot) handleDelete() {
 	})
 }
 
-func (tlBot TelegramBot) handleGraph() {
-	bot := tlBot.bot
-
-	selector := &tele.ReplyMarkup{}
-	btnGraph := selector.Data("نمودار قیمت", "graph")
-
-	bot.Handle(&btnGraph, func(c tele.Context) error {
-		commandLogs("graph", c.Sender().ID)
-		imagePath, err := db.GetGraphPicName(c.Data())
-		if err != nil {
-			err := c.Reply(err.Error())
-			if err != nil {
-				return err
-			}
-		} else {
-			image := &tele.Photo{File: tele.FromDisk(imagePath)}
-			err := c.Reply(image)
-			if err != nil {
-				return err
-			}
-		}
-		log.Println(imagePath)
-		return err
-	})
-}
+//func (tlBot TelegramBot) handleGraph() {
+//	bot := tlBot.bot
+//
+//	selector := &tele.ReplyMarkup{}
+//	btnGraph := selector.Data("نمودار قیمت", "graph")
+//
+//	bot.Handle(&btnGraph, func(c tele.Context) error {
+//		commandLogs("graph", c.Sender().ID)
+//		imagePath, err := db.GetGraphPicName(c.Data())
+//		if err != nil {
+//			err := c.Reply(err.Error())
+//			if err != nil {
+//				return err
+//			}
+//		} else {
+//			image := &tele.Photo{File: tele.FromDisk(imagePath)}
+//			err := c.Reply(image)
+//			if err != nil {
+//				return err
+//			}
+//		}
+//		log.Println(imagePath)
+//		return err
+//	})
+//}
 
 func (tlBot TelegramBot) handleQuery() {
 	bot := tlBot.bot

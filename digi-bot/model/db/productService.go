@@ -3,8 +3,6 @@ package db
 import (
 	"digi-bot/model"
 	"digi-bot/service"
-	"digi-bot/utils"
-	"errors"
 	"log"
 	"strconv"
 	"time"
@@ -75,28 +73,28 @@ func commitPriceChange(price int, productID int) {
 	database.Create(&model.History{Price: price, ProductID: productID, Date: time.Now()})
 }
 
-func GetGraphPicName(productId string) (string, error) {
-	pid, _ := strconv.Atoi(productId)
-	var prices []model.GraphData
-	database.
-		Model(&model.History{}).
-		Joins("JOIN products product on product.id = histories.product_id").
-		Where("product.id = ? AND histories.price > 0", pid).
-		Find(&prices)
-
-	if len(prices) < 5 {
-		return "", errors.New("تعداد قیمت ثبت‌شده کمتر از 5 هست")
-	}
-
-	imagePath, err := utils.LinearRegreasion(prices)
-
-	if err != nil {
-		log.Println(err)
-		return "", errors.New("خطا در ساخت تصویر")
-	}
-
-	return imagePath, nil
-}
+//func GetGraphPicName(productId string) (string, error) {
+//	pid, _ := strconv.Atoi(productId)
+//	var prices []model.GraphData
+//	database.
+//		Model(&model.History{}).
+//		Joins("JOIN products product on product.id = histories.product_id").
+//		Where("product.id = ? AND histories.price > 0", pid).
+//		Find(&prices)
+//
+//	if len(prices) < 5 {
+//		return "", errors.New("تعداد قیمت ثبت‌شده کمتر از 5 هست")
+//	}
+//
+//	imagePath, err := utils.LinearRegreasion(prices)
+//
+//	if err != nil {
+//		log.Println(err)
+//		return "", errors.New("خطا در ساخت تصویر")
+//	}
+//
+//	return imagePath, nil
+//}
 
 func GetAllProductByName(name string) ([]model.ProductDto, error) {
 	var m []model.Product
